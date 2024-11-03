@@ -1,10 +1,9 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { createServer } from "https";
+import { createServer } from "http";
 import "dotenv/config";
 import path from "path";
-import fs from 'fs';
 import process from "process";
 import { fileURLToPath } from "url";
 import { mongoDB, redisDB } from "./config/db.js";
@@ -21,17 +20,11 @@ const __dirname = path.dirname(__filename);
 
 const PORT = process.env.PORT || 443;
 const allowUrl = "0.0.0.0/0";
-const certdir = "C:\\Users\\adeni\\Documents\\Cert\\";
 
-const options = {
-  key: fs.readFileSync(`${certdir}localhost.key`),
-  cert: fs.readFileSync(`${certdir}localhost.crt`),
-  passphrase: process.env.CERT_PASSWORD
-};
 
 const app = express();
 
-const server = createServer(options, app);
+const server = createServer(app);
 
 app.use(cors({ origin: allowUrl, credentials: true }));
 app.use(express.json());
