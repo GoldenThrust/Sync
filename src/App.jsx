@@ -1,11 +1,10 @@
-import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Test from "./pages/Test";
+import Room from "./pages/Room/Room"
 
 const router = createBrowserRouter([
   {
     path: '/:id',
-    element: <Test />
+    element: <Room />
   },
 ]);
 

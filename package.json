@@ -1,11 +1,12 @@
 {
   "name": "sync",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host",
+    "dev": "vite",
     "build": "vite build && nodemon index.js",
+    "start": "vite build && node index.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -29,6 +30,7 @@
     "express-validator": "^7.2.0",
     "globals": "^15.9.0",
     "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^0.454.0",
     "mongoose": "^8.6.1",
     "multer": "^1.4.5-lts.1",
     "node-stdlib-browser": "^1.2.1",
@@ -56,12 +58,15 @@
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react-swc": "^3.5.0",
+    "autoprefixer": "^10.4.20",
     "eslint": "^9.13.0",
     "eslint-plugin-react": "^7.37.2",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.14",
     "globals": "^15.11.0",
     "nodemon": "^3.1.4",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.14",
     "vite": "^5.4.10"
   }
 }

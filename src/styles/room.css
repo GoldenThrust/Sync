@@ -1,0 +1,26 @@
+body {
+  background: url('/src/assets/chatroom.png');
+}
+.video-grid-56 {
+  width: 44%;
+}
+
+.video-grid-35 {
+  width: 48%;
+}
+
+
+
+@media (min-width: 1024px) {
+  .video-grid-35 {
+    width: 36.5%;
+  }
+  
+  .video-grid-56 {
+    width: 32%;
+  }
+}
+
+#parallelVideo div {
+  aspect-ratio: 16/9;
+}
