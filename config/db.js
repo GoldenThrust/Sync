@@ -1,9 +1,11 @@
 import { createClient } from "redis";
 import mongoose from "mongoose";
+import process from "process";
+
 
 class DB {
   constructor() {
-    this.uri = "mongodb://0.0.0.0:27017/trustxchange";
+    this.uri = process.env.MONGODB_URI;
   }
 
   async run() {
@@ -24,7 +26,7 @@ class RedisClient {
   client;
 
   constructor() {
-    this.client = createClient({ url: `redis://localhost:6379` });
+    this.client = createClient({ url: process.env.REDIS_URI });
 
     this.client.on("error", (err) => {
       console.error("Redis client failed to connect:", err);
