@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { useEffect, useRef } from "react";
 
 
-export default function Video({ stream, muted = false }) {
+export default function Video({ userID, stream, muted = false }) {
     const videoRef = useRef();
 
     useEffect(() => {
@@ -19,10 +19,11 @@ export default function Video({ stream, muted = false }) {
         };
     }, [stream]);
 
-    return <video ref={videoRef} autoPlay playsInline muted={muted} />;
+    return <video ref={videoRef} autoPlay playsInline muted={muted} id={userID} />;
 }
 
 Video.propTypes = {
+    userID: PropTypes.string.isRequired,
     stream: PropTypes.object.isRequired,
     muted: PropTypes.bool
 };

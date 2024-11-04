@@ -93,7 +93,6 @@ class RedisClient {
     }
 
     arr = arr.filter(x => {
-      console.log('del', x, x === value);
       return x !== value
     });
 

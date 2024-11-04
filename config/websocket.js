@@ -42,6 +42,7 @@ class WebSocketManager {
 
                 socket.on("disconnect", async () => {
                     console.log(`Disconnected from WebSocket`, socket.id);
+                    socket.to(this.room).emit('user-disconnected', socket.id);
                     await redisDB.delArray(`room_${this.room}`, socket.id)
                     reject('disconnect');
                     this.connected = false;

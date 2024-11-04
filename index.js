@@ -32,7 +32,6 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 
 app.get("/", (_, res) => {
   const url = `/${uuid()}`;
-  console.log(url)
   return res.redirect(url);
 });
 
