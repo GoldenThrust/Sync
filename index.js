@@ -11,7 +11,7 @@ import { createAdapter } from "@socket.io/redis-streams-adapter";
 import { Server } from "socket.io";
 import websocket from "./config/websocket.js";
 import { getIPAddress } from "./utils.js";
-import { v4 as uuid } from "uuid";
+// import { v4 as uuid } from "uuid";
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -30,10 +30,10 @@ app.use(cors({ origin: allowUrl, credentials: true }));
 app.use(express.json());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
-app.get("/", (_, res) => {
-  const url = `/${uuid()}`;
-  return res.redirect(url);
-});
+// app.get("/", (_, res) => {
+//   const url = `/${uuid()}`;
+//   return res.redirect(url);
+// });
 
 app.use(express.static(path.join(__dirname, "dist")));
 
