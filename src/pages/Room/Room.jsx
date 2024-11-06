@@ -10,10 +10,19 @@ import SideBar from "./SideBar.jsx";
 import Footer from "./Footer.jsx";
 import Header from "./Header.jsx";
 
+// test
+import { MoreHorizontal, PhoneOff, SwitchCamera, Video as VidLogo } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
 export default function Room() {
     const { id } = useParams();
     const remotePeer = useRef({});
     const [videos, setVideos] = useState([]);
+    const [localStream, setLocalStream] = useState(null);
+
+    // test
+    const navigate = useNavigate();
+    const [facingUser, setFacingUser] = useState(true);
 
     const socketRef = useRef(io(baseURL, {
         withCredentials: true,
@@ -27,7 +36,12 @@ export default function Room() {
         const initializeMediaStream = async () => {
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({
-                    video: { aspectRatio: { exact: 16 / 9 } },
+                    video: {
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 },
+                        aspectRatio: { exact: 16 / 9 },
+                        facingMode: facingUser ? 'user' : 'environment'
+                    },
                     audio: {
                         sampleRate: 10,
                         sampleSize: 16,
@@ -38,8 +52,11 @@ export default function Room() {
                     }
                 });
 
+
+                setLocalStream(localStream);
+
                 // Add local stream to remotePeer and set as muted for self-view
-                remotePeer.current[0] = { peer: 0, video: <Video stream={localStream} userID={0} key={0} muted={true} /> };
+                remotePeer.current[0] = { peer: { removeAllListeners: () => { } }, video: <Video stream={localStream} userID={'0'} key={0} muted={true} /> };
                 updateVideos();
 
                 // Listen for connected users
@@ -99,25 +116,50 @@ export default function Room() {
             }
         });
 
+
         return () => {
             if (localStream) {
                 localStream.getTracks().forEach(track => track.stop());
             }
-
             Object.values(remotePeer.current).forEach(rPeer => rPeer.peer.removeAllListeners());
             remotePeer.current = {};
 
             socket.emit("end-call");
             socket.removeAllListeners();
         };
-    }, []);
+    }, [facingUser]);
+
+
+    const endCall = () => {
+        socketRef.current.emit('end-call');
+        navigate('/', { replace: true });
+    };
+
+    const SwitchCameraFunc = () => {
+        setFacingUser((prevFacingUser) => !prevFacingUser);
+    };
+
+
+    const action = [{
+        logo: <MoreHorizontal />,
+        func: () => { },
+    }, {
+        logo: <PhoneOff color="red" />,
+        func: endCall,
+    }, {
+        logo: <VidLogo />,
+        func: () => { },
+    }, {
+        logo: <SwitchCamera />,
+        func: SwitchCameraFunc,
+    }]
 
     return (
         <div className="h-screen w-screen flex">
             <div className="flex flex-col w-full lg:w-4/5 h-full">
                 <Header className="flex border-b-2 border-slate-200 border-opacity-20 flex-grow shadow-lg shadow-slate-900" />
                 <VideoGrid videos={videos} style={{ height: "80%" }} />
-                <Footer socket={socketRef.current} className="flex-grow" />
+                <Footer socket={socketRef.current} localStream={localStream} action={action} className="flex-grow" />
             </div>
             <SideBar className="hidden flex-col lg:flex w-1/5" />
         </div>

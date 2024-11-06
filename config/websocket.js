@@ -22,9 +22,13 @@ class WebSocketManager {
                 this.connected = true;
                 const users = await redisDB.getArray(`room_${this.room}`);
 
-                setTimeout(() => {
-                    socket.emit('connected-users', users);
-                }, 1000)
+                socket.on("get-connected-users", ()=> {
+                    console.log('getting connected users');
+                    setTimeout(() => {
+                        socket.emit('connected-users', users);
+                    }, 1000)
+                })
+
                 await redisDB.setArray(`room_${this.room}`, socket.id, 24 * 60 * 60);
 
 
@@ -48,7 +52,7 @@ class WebSocketManager {
                     this.connected = false;
                 });
 
-                console.log(`Connected to WebSocket`, id);
+                console.log(`Connected to WebSocket`, id, socket.id);
                 resolve(this.connected);
             });
         });
