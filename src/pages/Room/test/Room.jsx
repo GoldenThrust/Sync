@@ -108,7 +108,7 @@ export default function Room() {
         <div className="h-screen w-screen flex">
             {localVideo}
             {remoteVideo}
-            <div className="absolute bottom-4 left-2/4 bg-slate-700 bg-opacity-20 shadow-lg shadow-slate-600 p-10">
+            <div className="absolute bottom-4 left-2/4 bg-slate-700 bg-opacity-20 shadow-lg shadow-slate-600 p-2">
                 <span className="bg-slate-600 w-14 aspect-square flex justify-center items-center rounded-full cursor-pointer active:animate-ping" onClick={endCall} >
                     <PhoneOff color="red" />
                 </span>
