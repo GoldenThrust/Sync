@@ -1,7 +1,7 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Room from "./pages/Room/Room"
-import Room2 from "./pages/Room/test/Room";
-import Home from "./Home";
+import Room from "./pages/Room/Room.jsx"
+import Room2 from "./pages/Room/test/Room.jsx";
+import Home from "./Home.jsx";
 
 const router = createBrowserRouter([
   {
