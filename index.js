@@ -10,7 +10,9 @@ import { mongoDB, redisDB } from "./config/db.js";
 import { createAdapter } from "@socket.io/redis-streams-adapter";
 import { Server } from "socket.io";
 import websocket from "./config/websocket.js";
-import { getIPAddress } from "./utils.js";
+import { getIPAddress } from "./utils/functions.js";
+import authRoutes from "./routes/auth.js";
+
 // import { v4 as uuid } from "uuid";
 
 
@@ -30,11 +32,9 @@ app.use(cors({ origin: allowUrl, credentials: true }));
 app.use(express.json());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
-// app.get("/", (_, res) => {
-//   const url = `/${uuid()}`;
-//   return res.redirect(url);
-// });
+app.use('/authentication', authRoutes);
 
+app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 app.use(express.static(path.join(__dirname, "dist")));
 
 app.get("*", (req, res) => {

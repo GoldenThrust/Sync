@@ -1,5 +1,5 @@
 import PropTypes from "prop-types"
-import Sync from "../../assets/sync.svg";
+import Sync from "../../../assets/sync.svg";
 
 export default function Header({ className }) {
     return <header className={className}>

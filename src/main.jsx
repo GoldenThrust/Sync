@@ -12,6 +12,7 @@ import store from './store.js';
 window.Buffer = Buffer;
 window.process = process;
 
+axios.defaults.baseURL = 'https://localhost:3000';
 axios.defaults.withCredentials = true;
 
 createRoot(document.getElementById("root")).render(

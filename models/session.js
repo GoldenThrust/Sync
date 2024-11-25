@@ -6,7 +6,7 @@ const SessionSchema = new Schema({
         required: true
     },
     activeUsers: {
-        type: [Schema.Types.ObjectId],
+        type: [Schema.Types.Mixed],
         ref: 'User',
     },
     invitedUsers: {
@@ -17,8 +17,8 @@ const SessionSchema = new Schema({
         type: Date,
         default: new Date(),
     },
-    expireDate: {
-        type: Date,
+    Duration: {
+        type: TimeRanges,
     },
     visibility: {
         type: ['private', 'public'],

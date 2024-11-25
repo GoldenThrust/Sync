@@ -6,7 +6,7 @@ import { useParams } from "react-router-dom";
 import "../../../styles/room.css";
 import { PhoneOff } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import Video from "../components/Video.jsx";
+import Video from "../../../components/ui/Video.jsx";
 
 export default function Room() {
     const { id } = useParams();

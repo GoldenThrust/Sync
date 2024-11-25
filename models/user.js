@@ -1,11 +1,7 @@
 import { model, Schema } from 'mongoose';
 
 const UserSchema = new Schema({
-    firstname: {
-        type: String,
-        required: true
-    },
-    lastname: {
+    fullname: {
         type: String,
         required: true
     },
@@ -18,7 +14,11 @@ const UserSchema = new Schema({
         type: String,
         required: true
     },
-    image: String
+    image: String,
+    active: {
+        type: Boolean,
+        default: false
+    }
 }, { timestamps: true })
 
 const User = model('User', UserSchema);

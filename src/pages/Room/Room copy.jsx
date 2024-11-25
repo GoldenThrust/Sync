@@ -8,7 +8,7 @@ import "../../styles/room.css";
 import VideoGrid from "./VideoGrid.jsx";
 import SideBar from "./SideBar.jsx";
 import Footer from "./Footer.jsx";
-import Header from "./Header.jsx";
+import Header from "./components/Header.jsx";
 
 export default function Room() {
     const [videos, setVideos] = useState([]);

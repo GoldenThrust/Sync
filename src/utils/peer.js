@@ -28,6 +28,8 @@ const iceServersConfig = {
 
 export function createPeer(socket, stream, userID) {
     const peer = new Peer({ initiator: true, stream, trickle: false, config: iceServersConfig });
+
+    console.log('sending peer signal')
     peer.on("signal", (signal) => {
         console.log("send rtc-signal", signal);
         socket.emit('rtc-signal', signal, userID);

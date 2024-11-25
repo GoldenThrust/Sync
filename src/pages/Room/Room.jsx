@@ -2,45 +2,37 @@ import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import { addPeer, createPeer } from "../../utils/peer.js";
 import { baseURL } from "../../utils/constant.js";
-import { useParams } from "react-router-dom";
-import Video from "./components/Video.jsx";
+import { useParams, useNavigate } from "react-router-dom";
+import Video from "../../components/ui/Video.jsx";
 import "../../styles/room.css";
 import VideoGrid from "./VideoGrid.jsx";
 import SideBar from "./SideBar.jsx";
 import Footer from "./Footer.jsx";
-import Header from "./Header.jsx";
 
-// test
+// Import icons
 import { MoreHorizontal, PhoneOff, SwitchCamera, Video as VidLogo } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import Header from "./components/Header.jsx";
 
 export default function Room() {
     const { id } = useParams();
+    const navigate = useNavigate();
     const remotePeer = useRef({});
+    const socketRef = useRef(io(baseURL, { withCredentials: true, query: { id } }));
     const [videos, setVideos] = useState([]);
     const [localStream, setLocalStream] = useState(null);
-
-    // test
-    const navigate = useNavigate();
     const [facingUser, setFacingUser] = useState(true);
-
-    const socketRef = useRef(io(baseURL, {
-        withCredentials: true,
-        query: { id },
-    }));
 
     useEffect(() => {
         const socket = socketRef.current;
-        let localStream;
 
         const initializeMediaStream = async () => {
             try {
-                localStream = await navigator.mediaDevices.getUserMedia({
+                const mediaStream = await navigator.mediaDevices.getUserMedia({
                     video: {
                         width: { ideal: 1920 },
                         height: { ideal: 1080 },
                         aspectRatio: { exact: 16 / 9 },
-                        facingMode: facingUser ? 'user' : 'environment'
+                        facingMode: 'user'
                     },
                     audio: {
                         sampleRate: 10,
@@ -52,21 +44,22 @@ export default function Room() {
                     }
                 });
 
+                setLocalStream(mediaStream);
 
-                setLocalStream(localStream);
-
-                // Add local stream to remotePeer and set as muted for self-view
-                remotePeer.current[0] = { peer: { removeAllListeners: () => { } }, video: <Video stream={localStream} userID={'0'} key={0} muted={true} /> };
+                // Set local stream in remotePeer for self-view
+                remotePeer.current[0] = {
+                    peer: { removeAllListeners: () => { } },
+                    video: <Video stream={mediaStream} userID={'0'} key={0} muted={true} />
+                };
                 updateVideos();
 
                 // Listen for connected users
                 socket.on('connected-users', (users) => {
                     users?.forEach((userID) => {
-                        const newRemotePeer = createPeer(socket, localStream, userID);
+                        const newRemotePeer = createPeer(socket, mediaStream, userID);
                         remotePeer.current[userID] = { peer: newRemotePeer };
 
                         newRemotePeer.on('stream', (stream) => {
-                            console.log("Streaming sent signal", stream.getTracks());
                             remotePeer.current[userID] = { peer: newRemotePeer, video: <Video stream={stream} userID={userID} key={stream.id} /> };
                             updateVideos();
                         });
@@ -75,12 +68,11 @@ export default function Room() {
 
                 // Handle incoming RTC signals
                 socket.on('rtc-signal', (signal, callerID) => {
-                    const newRemotePeer = addPeer(socket, localStream, callerID);
+                    const newRemotePeer = addPeer(socket, mediaStream, callerID);
                     newRemotePeer.signal(signal);
                     remotePeer.current[callerID] = { peer: newRemotePeer };
 
                     newRemotePeer.on('stream', (stream) => {
-                        console.log("Streaming received signal", stream.getTracks());
                         remotePeer.current[callerID] = { peer: newRemotePeer, video: <Video stream={stream} userID={callerID} key={stream.id} /> };
                         updateVideos();
                     });
@@ -90,24 +82,19 @@ export default function Room() {
             }
         };
 
-        // Function to update video elements
         const updateVideos = () => {
-            setVideos(Object.values(remotePeer.current)
-                .filter(peer => peer.video)
-                .map(peer => peer.video)
-            );
+            remotePeer.current = Object.values(remotePeer.current).filter(peer => peer.video);
+            setVideos(Object.values(remotePeer.current).map(peer => peer.video));
         };
 
         initializeMediaStream();
 
-        // Listen for returning RTC signal to complete handshake
         socket.on('return-rtc-signal', (signal, peerID) => {
             if (remotePeer.current[peerID]) {
                 remotePeer.current[peerID].peer.signal(signal);
             }
         });
 
-        // Handle user disconnection
         socket.on("user-disconnected", (peerID) => {
             if (remotePeer.current[peerID]) {
                 remotePeer.current[peerID].peer.removeAllListeners();
@@ -116,43 +103,88 @@ export default function Room() {
             }
         });
 
+        socket.emit('get-connected-users');
 
         return () => {
-            if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
-            }
+            localStream?.getTracks().forEach(track => track.stop());
             Object.values(remotePeer.current).forEach(rPeer => rPeer.peer.removeAllListeners());
             remotePeer.current = {};
-
             socket.emit("end-call");
             socket.removeAllListeners();
         };
-    }, [facingUser]);
-
+    }, [localStream]);
 
     const endCall = () => {
         socketRef.current.emit('end-call');
         navigate('/', { replace: true });
     };
 
-    const SwitchCameraFunc = () => {
-        setFacingUser((prevFacingUser) => !prevFacingUser);
+    const replaceMediaStream = async () => {
+        try {
+            // Request a new media stream with the updated facing mode
+            const newStream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    width: { ideal: 1920 },
+                    height: { ideal: 1080 },
+                    aspectRatio: { exact: 16 / 9 },
+                    // facingMode: 'user'
+                    facingMode: facingUser ? 'user' : 'environment'
+                },
+                audio: {
+                    sampleRate: 10,
+                    sampleSize: 16,
+                    channelCount: 2,
+                    echoCancellation: true,
+                    noiseSuppression: true,
+                    autoGainControl: true,
+                }
+            });
+
+            // Stop the tracks of the previous stream to free up resources
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+
+            // Set the new stream for the local video component and update the state
+            setLocalStream(newStream);
+            remotePeer.current[0] = {
+                peer: { removeAllListeners: () => { } },
+                video: <Video stream={newStream} userID={'0'} key={0} muted={true} />
+            };
+
+            Object.values(remotePeer.current).forEach((rPeer, index) => {
+                if (index === 0) return;
+                console.log(rPeer.peer, index);
+                rPeer.peer.replaceTrack(
+                    localStream.getVideoTracks()[0], // TODO: use curent track
+                    newStream.getVideoTracks()[0],
+                    localStream
+                );
+            });
+
+            const updateVideos = () => {
+                remotePeer.current = Object.values(remotePeer.current).filter(peer => peer.video);
+                setVideos(Object.values(remotePeer.current).map(peer => peer.video));
+            };
+
+            updateVideos()
+        } catch (err) {
+            console.error("Failed to get user media:", err);
+        }
+        console.log('Stream replaced');
     };
 
+    const SwitchCameraFunc = () => {
+        setFacingUser(prevFacingUser => !prevFacingUser);
+        replaceMediaStream();
+    };
 
-    const action = [{
-        logo: <MoreHorizontal />,
-        func: () => { },
-    }, {
-        logo: <PhoneOff color="red" />,
-        func: endCall,
-    }, {
-        logo: <VidLogo />,
-        func: () => { },
-    }, {
-        logo: <SwitchCamera />,
-        func: SwitchCameraFunc,
-    }]
+    const action = [
+        { logo: <MoreHorizontal />, func: () => { } },
+        { logo: <PhoneOff color="red" />, func: endCall },
+        { logo: <VidLogo />, func: () => { } },
+        { logo: <SwitchCamera />, func: SwitchCameraFunc }
+    ];
 
     return (
         <div className="h-screen w-screen flex">

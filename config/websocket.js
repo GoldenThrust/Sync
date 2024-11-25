@@ -23,8 +23,8 @@ class WebSocketManager {
                 const users = await redisDB.getArray(`room_${this.room}`);
 
                 socket.on("get-connected-users", ()=> {
-                    console.log('getting connected users');
                     setTimeout(() => {
+                        console.log('getting connected users');
                         socket.emit('connected-users', users);
                     }, 1000)
                 })
