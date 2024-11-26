@@ -1,20 +1,34 @@
 import PropTypes from "prop-types";
 import { useEffect, useRef } from "react";
 
-
-export default function Video({ userID, stream, muted = false, className}) {
+export default function Video({ userID, stream, muted = false, className }) {
     const videoRef = useRef();
 
     useEffect(() => {
         const videoCurrent = videoRef.current;
+
         if (videoCurrent) {
-            videoCurrent.srcObject = stream;
-            videoCurrent.play();
+            if (videoCurrent.srcObject !== stream) {
+                videoCurrent.srcObject = stream;
+            }
+
+            const playVideo = async () => {
+                try {
+                    await videoCurrent.play();
+                } catch (error) {
+                    if (error.name !== "AbortError") {
+                        console.error("Error playing video stream:", error);
+                    }
+                }
+            };
+
+            playVideo();
         }
 
         return () => {
-            if (videoCurrent?.srcObject) {
+            if (videoCurrent.srcObject) {
                 videoCurrent.srcObject.getTracks().forEach((track) => track.stop());
+                videoCurrent.srcObject = null;
             }
         };
     }, [stream]);

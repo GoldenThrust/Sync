@@ -1,3 +1,5 @@
+import socketcookieParser from "../middlewares/socketCookieParser.js";
+import socketAuthenticateToken from "../middlewares/socketTokenManager.js";
 import { redisDB } from "./db.js";
 
 class WebSocketManager {
@@ -10,6 +12,9 @@ class WebSocketManager {
     }
 
     async getConnection(io) {
+        io.use(socketcookieParser);
+        io.use(socketAuthenticateToken);
+    
         this.io = io;
 
         await new Promise((resolve, reject) => {

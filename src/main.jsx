@@ -8,11 +8,13 @@ import App from './App';
 import './App.css'
 import { Provider } from 'react-redux';
 import store from './store.js';
+import { baseUrl } from './utils/constant.js';
 
 window.Buffer = Buffer;
 window.process = process;
 
-axios.defaults.baseURL = 'https://localhost:3000';
+axios.defaults.baseURL = `${baseUrl}api`;
+console.log(`${baseUrl}api`)
 axios.defaults.withCredentials = true;
 
 createRoot(document.getElementById("root")).render(

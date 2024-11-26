@@ -4,9 +4,10 @@ import { createToken } from "../middlewares/tokenManager.js";
 import { COOKIE_NAME, hostUrl } from "../utils/constants.js";
 import mail from "../config/mail.js";
 import { redisDB } from "../config/db.js";
-import {v7 as uuid} from 'uuid';
+import { v7 as uuid } from 'uuid';
 import fs from "fs";
 import createOTP from "../utils/functions.js";
+import Settings from "../models/settings.js";
 
 class AuthenticationController {
     async verify(req, res) {
@@ -178,17 +179,19 @@ class AuthenticationController {
 
 
         const credential = JSON.parse(await redisDB.get(`otp_${crypto}`));
-        console.log(crypto, credential, otp);
-        
+
         if (!credential || credential['otp'] !== otp) {
             return res.status(401).json({ status: "ERROR", response: "Invalid or expired token" });
         }
         delete credential['otp'];
 
 
-        const user = new User(credential);
+        const user = new User({ ...credential, active: true });
 
-        user.save()
+        await user.save();
+
+        const settings = new Settings({ user });
+        await settings.save();
 
         if (!user) {
             return res.status(500).json({ status: "ERROR", response: "User not found" });
@@ -230,7 +233,7 @@ class AuthenticationController {
 
     async forgotPassword(req, res) {
         const email = req.body.email;
-        
+
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(401).json({ status: "ERROR", response: "User not registered" });

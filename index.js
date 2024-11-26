@@ -12,8 +12,9 @@ import { Server } from "socket.io";
 import websocket from "./config/websocket.js";
 import { getIPAddress } from "./utils/functions.js";
 import authRoutes from "./routes/auth.js";
-
-// import { v4 as uuid } from "uuid";
+import { authOptionalMiddleware } from "./middlewares/authOptionalMiddleware.js";
+import meetRoutes from "./routes/meet.js";
+import settingsRoutes from "./routes/settings.js";
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -26,13 +27,23 @@ const allowUrl = "0.0.0.0/0";
 
 const app = express();
 
-const server = createServer(app);
 
+const server = createServer(app);
+const optionalAuthRoutes = [
+  /^\/$/,
+  /^\/assets\//,
+  /^\/auth\/(?!verify|update-profile|logout).*$/,
+  /^\/api\/auth\/(?!verify|update-profile).*$/,
+];
 app.use(cors({ origin: allowUrl, credentials: true }));
 app.use(express.json());
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
-app.use('/authentication', authRoutes);
+app.use(authOptionalMiddleware(optionalAuthRoutes))
+app.use('/api/auth', authRoutes);
+app.use('/api/meet', meetRoutes);
+app.use('/api/settings', settingsRoutes);
+
 
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 app.use(express.static(path.join(__dirname, "dist")));
@@ -55,7 +66,7 @@ server.listen(PORT, () => {
       origin: 'http://localhost:5173',
       credentials: true
     },
-    
+
   });
 
 

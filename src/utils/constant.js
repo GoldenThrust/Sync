@@ -1,1 +1,1 @@
-export const baseURL = '/'
+export const baseUrl = `${import.meta.env.VITE_HOST_URL}`;

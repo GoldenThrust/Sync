@@ -12,17 +12,9 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Error404 from "./pages/404";
 import { verify } from "./authentication/authAction";
+import Logout from "./pages/Authentication/Logout";
 
 const NotAuthorized = () => {
-  const navigate = useNavigate()
-  const { isAuthenticated } = useSelector((state) => state.auth)
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/auth/login', { replace: true });
-    }
-  }, [isAuthenticated, navigate])
-
   return <Outlet />
 }
 const Authorized = () => {
@@ -44,7 +36,7 @@ const Base = () => {
 
   useEffect(() => {
     // if (!isAuthenticated) {
-      dispatch(verify());
+    dispatch(verify());
     // }
   }, [dispatch, isAuthenticated]);
 
@@ -68,6 +60,10 @@ const router = createBrowserRouter([
           {
             path: 'login',
             element: <Login />
+          },
+          {
+            path: 'logout',
+            element: <Logout />
           },
           {
             path: 'signup',

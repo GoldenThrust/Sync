@@ -1,4 +1,5 @@
 import cookieParser from "cookie-parser";
+import process from "process";
 
 export default function socketcookieParser(socket, next) {
     cookieParser(process.env.COOKIE_SECRET)(socket.request, {}, (err) => {

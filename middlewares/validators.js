@@ -51,7 +51,6 @@ export const signupValidator = [
     .withMessage("Name should consist of a first name, an optional middle name, and a last name, separated by a single space each."),
 
   body().custom((value, { req }) => {
-    console.log(value);
     if (!req.file) {
       throw new Error('Please provide a profile picture');
     }
@@ -60,3 +59,16 @@ export const signupValidator = [
 
   ...loginValidator,
 ];
+
+export const settingsValidator = [
+  body('video')
+    .notEmpty()
+    .withMessage('Please provide a video settings')
+    .isJSON()
+    .withMessage('Video settings must be JSON'),
+  body('audio')
+    .notEmpty()
+    .withMessage('Please provide a audio settings')
+    .isJSON()
+    .withMessage('Video settings must be JSON')
+]

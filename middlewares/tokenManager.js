@@ -16,15 +16,22 @@ export async function verifyToken(req, res, next) {
   const token = req.signedCookies[COOKIE_NAME];
 
   if (!token || token.trim() === "") {
+    if (!req.path.startsWith('/api')) {
+      return res.redirect('/auth/login');
+    }
     return res.status(401).json({ response: "Token Not Received" });
   }
+
   try {
     const jwtSecret = process.env.JWT_SECRET;
     const jwtData = jwt.verify(token, jwtSecret);
     res.locals.jwtData = jwtData;
     return next();
   } catch (error) {
-    console.error(error);
+    if (!req.path.startsWith('/api')) {
+      return res.redirect('/auth/login');
+    }
+    console.error("Token verification error:", error);
     return res.status(401).json({ response: "Token Expired or Invalid" });
-  } 
+  }
 }

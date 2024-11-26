@@ -72,6 +72,13 @@ button, .button {
   color: #ffffff;
   background-color: #0a1214;
   border: 2px solid #112e36;
+  transition: all 0.5s ease-in-out;
+}
+
+:is(input[type="submit"],
+button, .button):focus {
+  box-shadow: 0 0 0 3px #0a1214;
+  transform: scale(0.95);
 }
 
 .center {
@@ -108,7 +115,7 @@ button, .button {
   color: #ffffff;
 }
 
-#lobby::before {
+#lobby::before, #room::before {
   content: "";
   position: absolute;
   top: 0;
@@ -168,7 +175,7 @@ label:has(:is(input, textarea):focus) div {
 }
 
 :is(input, textarea):focus {
-  color: #000;
+  color: #d9d9d9;
 }
 
 

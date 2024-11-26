@@ -6,7 +6,7 @@ export const login = (form) => async (dispatch) => {
   try {
     toast.loading("Signing you in...", { id: "login" })
     dispatch(loginRequest());
-    const res = await axios.post('authentication/login', form);
+    const res = await axios.post('auth/login', form);
     const user = res.data.response;
     toast.success("Successfully signed in!", { id: "login" })
     dispatch(loginSuccess(user));
@@ -20,7 +20,7 @@ export const login = (form) => async (dispatch) => {
 export const logoutAction = () => async (dispatch) => {
   try {
     dispatch(processingData());
-    const res = await axios.get('authentication/logout');
+    const res = await axios.get('auth/logout');
     const user = res.data.response;
     dispatch(logout(user));
   } catch (error) {
@@ -32,7 +32,7 @@ export const logoutAction = () => async (dispatch) => {
 export const verify = () => async (dispatch) => {
   try {
     dispatch(loginRequest());
-    const res = await axios.get('authentication/verify');
+    const res = await axios.get('auth/verify');
     const user = res.data.response;
     dispatch(loginSuccess(user));
   } catch (error) {
@@ -44,8 +44,7 @@ export const signup = (form, setOtpOpen) => async (dispatch) => {
   try {
     toast.loading("Creating your account...", { id: "signup" })
     dispatch(processingData());
-    console.log(form)
-    const res = await axios.post('authentication/register', form);
+    const res = await axios.post('auth/register', form);
     const response = await res.data;
     toast.success("Activation token sent", { id: "signup" })
     dispatch(AuthResponse(response));
@@ -60,7 +59,7 @@ export const forgotPassword = (form) => async (dispatch) => {
   try {
     toast.loading("Sending password reset link...", { id: "resetLink" })
     dispatch(processingData());
-    const res = await axios.post('authentication/forgot-password', form);
+    const res = await axios.post('auth/forgot-password', form);
     const response = res.data.response;
     toast.success("Password reset link sent to your email!", { id: "resetLink" })
     dispatch(AuthResponse(response));
@@ -75,7 +74,7 @@ export const resetPassword = (crypto, form) => async (dispatch) => {
   try {
     toast.loading("Updating your password...", { id: "newPassword" })
     dispatch(processingData());
-    const res = await axios.post(`authentication/reset-password/${crypto}`, form);
+    const res = await axios.post(`auth/reset-password/${crypto}`, form);
     const response = res.data.response;
     toast.success("Password updated successfully!", { id: "newPassword" })
     dispatch(AuthResponse(response));
@@ -89,7 +88,7 @@ export const accountActivation = (crypto, otp) => async (dispatch) => {
   try {
     toast.loading("Verifying OTP......", { id: "otp" })
     dispatch(loginRequest());
-    const res = await axios.get(`authentication/activate/${crypto}/${otp}`);
+    const res = await axios.get(`auth/activate/${crypto}/${otp}`);
     const user = res.data.response;
     dispatch(loginSuccess(user));
     toast.success("Account Activated", { id: "otp" })

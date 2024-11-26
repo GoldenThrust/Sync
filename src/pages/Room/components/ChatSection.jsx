@@ -1,5 +1,5 @@
 import { MoreVertical, SendIcon } from 'lucide-react';
-import Joy from '../../assets/joy.jpg'
+import Joy from '../../../assets/joy.jpg'
 import PropTypes from 'prop-types';
 export default function ChatSection({ className }) {
     const chats = Array.from({ length: 20 }, () => {

@@ -1,6 +1,4 @@
-// import { useNavigate } from "react-router-dom";
-// import { v4 as uuid } from "uuid";
-
+import SyncLogo from '../assets/sync.svg';
 import { Link } from "react-router-dom";
 
 import AISubtitle from "../assets/features/aisubtitle.png"
@@ -18,18 +16,13 @@ import OneFormField from "../components/ui/form/OneFormField";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import FormField from "../components/ui/form/FormField";
+import { useSelector } from "react-redux";
 
 export default function Home() {
     const messageFormHook = useForm();
     
-    const { handleSubmit: messageSubmit } = messageFormHook;    
-
-    // const navigate = useNavigate();
-
-    // const HandClick = (path) => () => {
-    //     const id = uuid();
-    //     navigate(`${path}${id}`);
-    // };
+    const { handleSubmit: messageSubmit } = messageFormHook;
+    const { isAuthenticated } = useSelector((state) => state.auth)
 
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -96,20 +89,9 @@ export default function Home() {
 
 
     return <div id="homepage" className="space-y-10">
-        {/* <header className="flex my-5 justify-evenly">
-            <div>
-                <img src="./sync.svg" alt="Sync Logo" className="w-14 drop-shadow-2xl" />
-                <h1 className="sr-only">Sync</h1>
-            </div>
-            <nav className="w-8/12 flex  justify-evenly items-center">
-                {headerNav.map((nav, index) =>
-                    <Link to={nav.link} key={index} className="text-black border-solid border-2 center w-24 h-0.5 p-4 rounded-xl bg-white hover:bg-slate-100 border-black">{nav.name}</Link>)}
-            </nav>
-            <Link to="/login" className="bg-color w-28 rounded-lg p-2 text-center text-white">Login</Link>
-        </header> */}
         <header className="flex my-5 justify-between">
             <div>
-                <img src="./sync.svg" alt="Sync Logo" className="w-14 drop-shadow-2xl" />
+                <img src={SyncLogo} alt="Sync Logo" className="w-14 drop-shadow-2xl" />
                 <h1 className="sr-only">Sync</h1>
             </div>
             <nav className="hidden w-8/12 justify-evenly items-center md:flex space-x-4">
@@ -123,7 +105,7 @@ export default function Home() {
                     </Link>
                 ))}
             </nav>
-            <Link to="/auth/login" className="bg-color w-28 rounded-lg p-2 text-center text-white hidden md:block">Login</Link>
+            <Link to={`${isAuthenticated ? "/auth/logout" : "/auth/login"}`} className="bg-color w-28 rounded-lg p-2 text-center text-white hidden md:block">{isAuthenticated ? 'Logout' : 'Login' }</Link>
             {/* Menu Icon */}
             <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -147,10 +129,10 @@ export default function Home() {
                         </Link>
                     ))}
                     <Link
-                        to="/login"
+                        to={`${isAuthenticated ? "/auth/logout" : "/auth/login"}`}
                         className="text-white bg-black px-4 py-2 rounded-lg"
                     >
-                        Login
+                        {isAuthenticated ? 'Logout' : 'Login' }
                     </Link>
                 </nav>
             </div>
@@ -159,7 +141,7 @@ export default function Home() {
             <section className=" px-4 w-full lg:w-1/2 mt-16 mb-24 text-center lg:text-left">
                 <div className="text-4xl md:text-6xl lg:text-8xl font-serif text-slate-800">Synchronize for work, play, and Everything in between</div>
                 <div className="my-3 text-slate-600">A single platform for all your communication need</div>
-                <Link to="/auth/signup" className="block bg-color mx-auto lg:mx-0 w-40 rounded-ss-2xl rounded-ee-2xl p-3 text-md font-medium font-serif text-center text-white">Get Started</Link>
+                <Link to={isAuthenticated ? "/meet/create" : "/auth/signup" } className="block bg-color mx-auto lg:mx-0 w-40 rounded-ss-2xl rounded-ee-2xl p-3 text-md font-medium font-serif text-center text-white">{isAuthenticated ? 'Start Meeting' : 'Get Started'}</Link>
             </section>
             <section>
                 <h2 className="text-center text-slate-800 mb-16 text-4xl md:text-6xl lg:text-8xl font-serif" id="features">Features</h2>
