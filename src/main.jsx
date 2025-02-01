@@ -13,8 +13,7 @@ import { baseUrl } from './utils/constant.js';
 window.Buffer = Buffer;
 window.process = process;
 
-axios.defaults.baseURL = `${baseUrl}api`;
-console.log(`${baseUrl}api`)
+axios.defaults.baseURL = `${baseUrl}/api`;
 axios.defaults.withCredentials = true;
 
 createRoot(document.getElementById("root")).render(

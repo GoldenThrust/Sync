@@ -12,7 +12,7 @@ export function authOptionalMiddleware(regexArray) {
 
             await verifyToken(req, res, async () => {
                 try {
-                    const user = await User.findById(res.locals.jwtData.id);
+                    const user = await User.findById(res.jwt.id);
 
                     if (!user) {
                         if (!req.path.startsWith('/api')) {

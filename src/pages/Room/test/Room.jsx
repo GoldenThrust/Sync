@@ -105,60 +105,60 @@ export default function Room() {
     };
 
     
-    const replaceMediaStream = async () => {
-        try {
-            // Request a new media stream with the updated facing mode
-            const newStream = await navigator.mediaDevices.getUserMedia({
-                video: {
-                    width: { ideal: 1920 },
-                    height: { ideal: 1080 },
-                    aspectRatio: { exact: 16 / 9 },
-                    // facingMode: 'user'
-                    facingMode: facingUser ? 'user' : 'environment'
-                },
-                audio: {
-                    sampleRate: 10,
-                    sampleSize: 16,
-                    channelCount: 2,
-                    echoCancellation: true,
-                    noiseSuppression: true,
-                    autoGainControl: true,
-                }
-            });
+    // const replaceMediaStream = async () => {
+    //     try {
+    //         // Request a new media stream with the updated facing mode
+    //         const newStream = await navigator.mediaDevices.getUserMedia({
+    //             video: {
+    //                 width: { ideal: 1920 },
+    //                 height: { ideal: 1080 },
+    //                 aspectRatio: { exact: 16 / 9 },
+    //                 // facingMode: 'user'
+    //                 facingMode: facingUser ? 'user' : 'environment'
+    //             },
+    //             audio: {
+    //                 sampleRate: 10,
+    //                 sampleSize: 16,
+    //                 channelCount: 2,
+    //                 echoCancellation: true,
+    //                 noiseSuppression: true,
+    //                 autoGainControl: true,
+    //             }
+    //         });
 
-            // Stop the tracks of the previous stream to free up resources
-            if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
-            }
+    //         // Stop the tracks of the previous stream to free up resources
+    //         if (localStream) {
+    //             localStream.getTracks().forEach(track => track.stop());
+    //         }
 
-            // Set the new stream for the local video component and update the state
-            setLocalStream(newStream);
-            remotePeer.current[0] = {
-                peer: { removeAllListeners: () => { } },
-                video: <Video stream={newStream} userID={'0'} key={0} muted={true} />
-            };
+    //         // Set the new stream for the local video component and update the state
+    //         setLocalStream(newStream);
+    //         remotePeer.current[0] = {
+    //             peer: { removeAllListeners: () => { } },
+    //             video: <Video stream={newStream} userID={'0'} key={0} muted={true} />
+    //         };
 
-            Object.values(remotePeer.current).forEach((rPeer, index) => {
-                if (index === 0) return;
-                console.log(rPeer.peer, index);
-                rPeer.peer.replaceTrack(
-                    localStream.getVideoTracks()[0], // TODO: use curent track
-                    newStream.getVideoTracks()[0],
-                    localStream
-                );
-            });
+    //         Object.values(remotePeer.current).forEach((rPeer, index) => {
+    //             if (index === 0) return;
+    //             console.log(rPeer.peer, index);
+    //             rPeer.peer.replaceTrack(
+    //                 localStream.getVideoTracks()[0], // TODO: use curent track
+    //                 newStream.getVideoTracks()[0],
+    //                 localStream
+    //             );
+    //         });
 
-            const updateVideos = () => {
-                remotePeer.current = Object.values(remotePeer.current).filter(peer => peer.video);
-                setVideos(Object.values(remotePeer.current).map(peer => peer.video));
-            };
+    //         const updateVideos = () => {
+    //             remotePeer.current = Object.values(remotePeer.current).filter(peer => peer.video);
+    //             setVideos(Object.values(remotePeer.current).map(peer => peer.video));
+    //         };
 
-            updateVideos()
-        } catch (err) {
-            console.error("Failed to get user media:", err);
-        }
-        console.log('Stream replaced');
-    };
+    //         updateVideos()
+    //     } catch (err) {
+    //         console.error("Failed to get user media:", err);
+    //     }
+    //     console.log('Stream replaced');
+    // };
 
     return (
         <div className="h-screen w-screen flex">

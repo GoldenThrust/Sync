@@ -23,17 +23,18 @@ export default function Lobby() {
     const [actions, setActions] = useState([]);
 
     const { settings } = useSelector((state) => state.settings);
+    const { user } = useSelector((state) => state.auth);
 
     useEffect(() => {
-        if (settings && mediaStream) {
+        if (settings && mediaStream && user) {
             const newActions = [
                 { logo: <MoreHorizontal />, func: () => setSettingsOpen(true) },
                 {
-                    logo: <VidLogo color={settings.enabledVideo ? "white" : "red"} />,
+                    logo: <VidLogo color={settings.settings.enabledVideo ? "white" : "red"} />,
                     func: () => dispatch(toggleCamera(updateSettings, settings)),
                 },
                 {
-                    logo: <AudioLines color={settings.enabledAudio ? "white" : "red"} />,
+                    logo: <AudioLines color={settings.settings.enabledAudio ? "white" : "red"} />,
                     func: () => dispatch(toggleAudio(updateSettings, settings)),
                 },
             ];
@@ -49,15 +50,16 @@ export default function Lobby() {
 
             setVideoStream(
                 <div className="w-1/2 md:w-1/3 rounded-xl border-4 border-slate-800 overflow-hidden">
-                    <Video stream={mediaStream} userID="0" key="0" muted className={settings.video.facingMode === 'user' ? `-scale-x-100` : 'scale-x-100'} />
+                    {console.log(settings)}
+                    <Video stream={mediaStream} user={user} muted className={settings.settings.video.facingMode === 'user' ? `-scale-x-100` : 'scale-x-100'} />
                 </div>
             );
 
             setActions(newActions);
-            toggleTrack(mediaStream, "audio", settings.enabledAudio);
-            toggleTrack(mediaStream, "video", settings.enabledVideo);
+            toggleTrack(mediaStream, "audio", settings.settings.enabledAudio);
+            toggleTrack(mediaStream, "video", settings.settings.enabledVideo);
         }
-    }, [mediaStream, settings, dispatch]);
+    }, [mediaStream, settings, dispatch, user]);
 
     useEffect(() => {
         dispatch(getSettings());
@@ -67,7 +69,7 @@ export default function Lobby() {
         let stream;
         const initializeMediaStream = async () => {
             try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: settings.video, audio: settings.audio });
+                stream = await navigator.mediaDevices.getUserMedia({ video: settings.settings.video, audio: settings.settings.audio });
                 setMediaStream(stream);
             } catch (error) {
                 console.log("Error initializing media stream:", error.message);
@@ -91,7 +93,7 @@ export default function Lobby() {
             <Head className="absolute top-3 left-1" />
             {videoStream}
             <div>
-                <ActionTab className="flex justify-center gap-5 items-center h-full" action={actions} />
+                <ActionTab className="flex justify-center gap-5 items-center h-full" actions={actions} />
             </div>
             <Link href={`/meet/initiate/${id}`} className="w-4/5 md:w-1/3 font-bold">
                 <Button value="Join Chat" className="w-full font-bold" />

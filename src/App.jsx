@@ -35,9 +35,9 @@ const Base = () => {
   const { isAuthenticated } = useSelector((state) => state.auth)
 
   useEffect(() => {
-    // if (!isAuthenticated) {
-    dispatch(verify());
-    // }
+    if (!isAuthenticated) {
+      dispatch(verify());
+    }
   }, [dispatch, isAuthenticated]);
 
   return <Outlet />

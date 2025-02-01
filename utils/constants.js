@@ -10,5 +10,5 @@ export const __dirname = path.dirname(__filename);
 
 export const Dev = process.env.DEV === "TRUE" ? true : false;
 
-export const hostUrl = process.env.HOST_URL;
+export const hostUrl = process.env.VITE_HOST_URL;
 export const upload = multer({ dest: './uploads'});

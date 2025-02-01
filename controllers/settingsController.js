@@ -40,7 +40,6 @@ class SettingsController {
                 enabledVideo: (enabledVideo === null || enabledVideo === undefined) ? settings.enabledVideo : enabledVideo,
             } 
             
-            console.log(updatedSettings, enabledAudio, enabledVideo);
             
             await Settings.findOneAndUpdate(
                 { user: req.user },
@@ -63,7 +62,7 @@ class SettingsController {
                 return res.status(404).json({ status: 'ERROR', message: 'Settings not found' });
             }
 
-            return res.json({ status: 'OK', settings });
+            return res.json({ status: 'OK', settings, user: req.user });
         } catch (error) {
             console.error("Error retrieving settings:", error);
             return res.status(500).json({ status: 'ERROR', message: error.message });

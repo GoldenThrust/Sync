@@ -1,180 +1,202 @@
 import { useEffect, useRef, useState } from "react";
-import { io } from "socket.io-client";
-import { addPeer, createPeer } from "../../utils/peer.js";
-import { useParams, useNavigate } from "react-router-dom";
-import Video from "../../components/ui/Video.jsx";
-import "../../styles/room.css";
-import VideoGrid from "./components/VideoGrid.jsx";
-import SideBar from "./components/SideBar.jsx";
-import Footer from "./components/Footer.jsx";
-
-// Import icons
-import { AudioLines, MoreHorizontal, PhoneOff, SwitchCamera, Video as VidLogo } from "lucide-react";
-import Header from "./components/Header.jsx";
-import { baseUrl } from "../../utils/constant.js";
 import { useDispatch, useSelector } from "react-redux";
-import { toggleTrack } from "../../utils/mediaSettings.js";
-import { endCall, toggleAudio, toggleCamera, toggleFacingMode } from "../../utils/actions.js";
-import { getSettings, updateSettings } from "../../settings/settingsAction.js";
+import { useNavigate, useParams } from "react-router-dom";
+import Video from "../../components/ui/Video";
+import { getSettings, updateSettings } from "../../settings/settingsAction";
+// import axios from "axios";
+import { io } from "socket.io-client";
+import { baseUrl } from "../../utils/constant";
+import { addPeer, createPeer } from "../../utils/peer";
 import { isMobile } from "react-device-detect";
+// import Header from "./components/Header";
+import VideoGrid from "./components/VideoGrid";
+import Footer from "./components/Footer";
+// import SideBar from "./components/SideBar";
+import { AudioLines, PhoneOff, SwitchCamera, VideoIcon } from "lucide-react";
+import { endCall, toggleAudio, toggleCamera, toggleFacingMode } from "../../utils/actions";
+import { toggleTrack } from "../../utils/mediaSettings";
 
-export default function Room() {
+export default function Lobby() {
     const { id } = useParams();
     const dispatch = useDispatch();
-    const navigate = useNavigate();
+    const [videoStream, setVideoStream] = useState(null);
+    const [mediaStream, setMediaStream] = useState(null);
+    const [remoteVideos, setRemoteVideos] = useState({});
+    const socketRef = useRef(null);
     const remotePeer = useRef({});
-    const socketRef = useRef(io(baseUrl, { withCredentials: true, query: { id } }));
-    const [videos, setVideos] = useState([]);
-    const [localStream, setLocalStream] = useState(null);
-    const [initiated, setInitiated] = useState(false);
-    const [actions, setActions] = useState([]);
-
     const { settings } = useSelector((state) => state.settings);
+    const [actions, setActions] = useState([]);
+    const navigate = useNavigate();
 
-    const updateVideos = () => {
-        remotePeer.current = Object.values(remotePeer.current).filter(peer => peer.video);
-        setVideos(Object.values(remotePeer.current).map(peer => peer.video));
-    };
-
-    // Fetch settings when component mounts
     useEffect(() => {
         dispatch(getSettings());
     }, [dispatch]);
 
+    useEffect(() => {
+        let localStream;
+
+        // Initialize media stream
+        const initializeMediaStream = async () => {
+            try {
+                console.log(settings)
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    video: settings.settings.video,
+                    audio: settings.settings.audio,
+                });
+                setMediaStream(localStream);
+
+                setVideoStream(
+                    <Video stream={localStream} user={{ ...settings.user, id: socketRef.current.id }} muted className={`${settings.settings.video.facingMode === 'user' ? '-scale-x-100' : 'scale-x-100'} w-full h-full`} />
+                );
+                socketRef.current.emit('get-active-users', id)
+            } catch (error) {
+                console.error("Error initializing media stream:", error.message);
+            }
+        };
+
+        // Function to create a new peer connection
+        const createNewPeer = (user, settings) => {
+            if (!localStream) return;
+            const newRemotePeer = createPeer(socketRef.current, localStream, user.id);
+            remotePeer.current[user.email] = newRemotePeer;
+
+            newRemotePeer.on("stream", (stream) => {
+                setRemoteVideos((prev) => {
+                    return {
+                        ...prev,
+                        [user.email]: <Video stream={stream} className={`overflow-hidden ${!isMobile || settings.video?.facingMode === "user" ? "-scale-x-100" : "scale-x-100"}`} key={`video-${stream.id}`} user={user} />
+                    }
+                })
+            });
+        };
+
+
+        // Add a new peer when receiving a signal
+        const addNewPeer = (callerID, signal, user, settings) => {
+            const newRemotePeer = addPeer(socketRef.current, localStream, callerID);
+            newRemotePeer.signal(signal);
+            remotePeer.current[user.email] = newRemotePeer;
+
+            newRemotePeer.on("stream", (stream) => {
+                setRemoteVideos((prev) => {
+                    return {
+                        ...prev,
+                        [user.email]: <Video stream={stream} className={`overflow-hidden ${!isMobile || settings.video?.facingMode === "user" ? "-scale-x-100" : "scale-x-100"}`} key={`video-${stream.id}`} user={user} />
+                    }
+                })
+            });
+        };
+
+
+
+        if (settings) {
+            initializeMediaStream();
+
+            socketRef.current = io(baseUrl, {
+                withCredentials: true,
+                query: { id },
+            });
+
+
+            socketRef.current.on('active-users', (users) => {
+                users.forEach(({ user, settings }) => {
+                    createNewPeer(user, settings);
+                });
+            })
+
+            socketRef.current.on("connect", () => {
+                console.log("Socket connected:", socketRef.current.id);
+            });
+
+            socketRef.current.on("disconnect", () => {
+                console.log("Socket disconnected");
+            });
+
+            socketRef.current.on("rtc-signal", (signal, callerID, user, settings) => {
+                addNewPeer(callerID, signal, user, settings);
+            });
+
+            socketRef.current.on("return-rtc-signal", (signal, email) => {
+                if (remotePeer.current[email]) {
+                    remotePeer.current[email].signal(signal);
+                }
+            });
+
+            socketRef.current.on("user-disconnected", (user) => {
+                if (remotePeer.current[user.email]) {
+                    remotePeer.current[user.email].destroy();
+                    delete remotePeer.current[user.email];
+                }
+
+                setRemoteVideos((prev) => {
+                    delete prev[user.email];
+
+                    return {
+                        ...prev
+                    }
+                })
+            });
+
+            return () => {
+                console.log("Cleaning up...");
+                Object.values(remotePeer.current).forEach((peer) => {
+                    peer.removeAllListeners();
+                    peer.destroy();
+                });
+                remotePeer.current = {};
+
+                localStream?.getTracks().forEach((track) => track.stop());
+                socketRef.current?.emit("end-call");
+                socketRef.current?.removeAllListeners();
+                socketRef.current?.disconnect();
+            };
+        }
+    }, [id, settings]);
+
 
     useEffect(() => {
-        if (settings && localStream) {
+        if (settings && mediaStream) {
             const newActions = [
-                { logo: <MoreHorizontal />, func: () => { } },
                 {
-                    logo: <VidLogo color={settings.enabledVideo ? "white" : "red"} />,
+                    logo: <VideoIcon color={settings.settings.enabledVideo ? "white" : "red"} />,
                     func: () => dispatch(toggleCamera(updateSettings, settings)),
                 },
-                { logo: <PhoneOff color="red" />, func: endCall(socketRef.current, navigate) },
                 {
-                    logo: <AudioLines color={settings.enabledAudio ? "white" : "red"} />,
+                    logo: <AudioLines color={settings.settings.enabledAudio ? "white" : "red"} />,
                     func: () => dispatch(toggleAudio(updateSettings, settings)),
                 },
+                {
+                    logo: <PhoneOff color="red" />,
+                    func: () => endCall(socketRef.current, navigate, mediaStream),
+                },
             ];
-
 
             if (isMobile) {
                 newActions.push({
                     logo: <SwitchCamera />,
                     func: () => {
-                        dispatch(toggleFacingMode(updateSettings, settings, localStream, setInitiated));
+                        dispatch(toggleFacingMode(updateSettings, settings, mediaStream));
                     },
                 });
             }
 
-
-
-            remotePeer.current[0] = {
-                peer: { removeAllListeners: () => { } },
-                video: <Video stream={localStream} userID={'0'} key={0} muted={true} />
-            };
-            updateVideos();
-
+            setVideoStream(
+                <Video stream={mediaStream} user={{ ...settings.user, id: socketRef.current.id }} muted className={`${settings.settings.video.facingMode === 'user' ? '-scale-x-100' : 'scale-x-100'} w-full h-full`} />
+            );
 
             setActions(newActions);
-            toggleTrack(localStream, 'audio', settings.enabledAudio);
-            toggleTrack(localStream, 'video', settings.enabledVideo);
+            toggleTrack(mediaStream, "audio", settings.settings.enabledAudio);
+            toggleTrack(mediaStream, "video", settings.settings.enabledVideo);
         }
-    }, [localStream, settings, dispatch, navigate]);
+    }, [mediaStream, settings, dispatch, navigate]);
 
-
-    useEffect(() => {
-        const socket = socketRef.current;
-
-        const createNewPeer = (userID) => {
-            const newRemotePeer = createPeer(socket, localStream, userID);
-            remotePeer.current[userID] = { peer: newRemotePeer };
-            newRemotePeer.on('stream', (stream) => {
-                remotePeer.current[userID] = { peer: newRemotePeer, video: <Video stream={stream} userID={userID} key={stream.id} /> };
-                updateVideos();
-            });
-        };
-
-        const addNewPeer = (callerID, signal) => {
-            const newRemotePeer = addPeer(socket, localStream, callerID);
-            newRemotePeer.signal(signal);
-            remotePeer.current[callerID] = { peer: newRemotePeer };
-
-            newRemotePeer.on('stream', (stream) => {
-                remotePeer.current[callerID] = { peer: newRemotePeer, video: <Video stream={stream} userID={callerID} key={stream.id} /> };
-                updateVideos();
-            });
-        }
-
-        // Listen for connected users
-        socket.on('connected-users', (users) => {
-            users?.forEach((userID) => {
-                createNewPeer(userID);
-            });
-        });
-
-        // Handle incoming RTC signals
-        socket.on('rtc-signal', (signal, callerID) => {
-            addNewPeer(callerID, signal)
-        });
-
-
-        socket.on('return-rtc-signal', (signal, peerID) => {
-            if (remotePeer.current[peerID]) {
-                remotePeer.current[peerID].peer.signal(signal);
-            }
-        });
-
-        socket.on("user-disconnected", (peerID) => {
-            if (remotePeer.current[peerID]) {
-                delete remotePeer.current[peerID];
-                updateVideos();
-            }
-
-        });
-
-        socket.emit('get-connected-users');
-
-        return () => {
-            socket.emit("end-call");
-            socket.removeAllListeners();
-            Object.values(remotePeer.current).forEach(rPeer => rPeer.peer.removeAllListeners());
-            remotePeer.current = {};
-            localStream?.getTracks().forEach((track) => track.stop());
-        };
-    }, [localStream])
-
-    // Initialize media stream
-    useEffect(() => {
-        let stream;
-        const initializeMediaStream = async () => {
-            try {
-                stream = await navigator.mediaDevices.getUserMedia({ video: settings.video, audio: settings.audio });
-                setLocalStream(stream);
-            } catch (error) {
-                console.error("Error initializing media stream:", error.message);
-                alert("Unable to access camera/microphone. Please check your permissions.");
-            }
-        };
-
-        if (settings && initiated === false) {
-            setInitiated(true);
-            initializeMediaStream();
-        }
-
-        return () => {
-            stream?.getTracks().forEach((track) => track.stop());
-        };
-    }, [settings, initiated]);
 
     return (
-        <div className="h-screen w-screen flex" id="room">
-            <div className="flex flex-col w-full lg:w-4/5 h-full">
-                <Header className="flex border-b-2 border-slate-200 border-opacity-20 flex-grow shadow-lg shadow-slate-900 text-white" />
-                <VideoGrid videos={videos} style={{ height: "80%" }} />
-                <Footer socket={socketRef.current} localStream={localStream} action={actions} className="flex-grow" />
-            </div>
-            <SideBar className="hidden flex-col lg:flex w-1/5 text-white" />
+        <div className="h-screen w-screen" id="room">
+            {/* <Header className="flex border-b-2 p-2 bg-slate-900 bg-opacity-75 border-slate-200 border-opacity-20 flex-grow shadow-lg shadow-slate-900 absolute top-0 left-0 w-full z-10" /> */}
+            <VideoGrid videos={remoteVideos} localVideo={videoStream} />
+            <Footer socket={socketRef.current} actions={actions} className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full p-2 bg-slate-900 bg-opacity-80 z-10" />
+            {/* {false && <SideBar className="hidden flex-col lg:flex w-1/5" />} */}
         </div>
     );
 }

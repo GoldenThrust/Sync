@@ -1,7 +1,7 @@
 import { createClient } from "redis";
 import mongoose from "mongoose";
 import process from "process";
-
+import 'dotenv/config'
 
 class DB {
   constructor() {

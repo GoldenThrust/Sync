@@ -22,7 +22,7 @@ export const updateSettings = (settings) => async (dispatch) => {
 export const getSettings = () => async (dispatch) => {
     try {
         const res = await axios.get('/settings/get');
-        const settings = res.data.settings;
+        const settings = res.data;
         dispatch(setSettings(settings));
     } catch (err) {
         console.error('Error getting settings:', err);

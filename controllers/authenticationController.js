@@ -8,6 +8,10 @@ import { v7 as uuid } from 'uuid';
 import fs from "fs";
 import createOTP from "../utils/functions.js";
 import Settings from "../models/settings.js";
+import { URL } from "url";
+
+const domain = (new URL(hostUrl)).hostname
+
 
 class AuthenticationController {
     async verify(req, res) {
@@ -108,12 +112,12 @@ class AuthenticationController {
                 secure: true,
                 sameSite: "none",
                 httpOnly: true,
-                domain: hostUrl,
+                domain,
                 signed: true,
                 path: "/",
             });
 
-            const token = createToken(user._id.toString(), user.email, user.fullname, "7d");
+            const token = createToken(user, "7d");
             const expires = new Date();
             expires.setDate(expires.getDate() + 7);
 
@@ -122,7 +126,7 @@ class AuthenticationController {
                 sameSite: "none",
                 httpOnly: true,
                 path: "/",
-                domain: hostUrl,
+                domain,
                 expires,
                 signed: true,
             });
@@ -141,12 +145,12 @@ class AuthenticationController {
 
     async logout(req, res) {
         try {
-            const user = await User.findById(res.locals.jwtData.id);
+            const user = await User.findById(res.jwt.id);
             if (!user) {
                 return res.status(401).send({ response: "Account not registered OR Token malfunctioned" });
             }
 
-            if (user._id.toString() !== res.locals.jwtData.id) {
+            if (user._id.toString() !== res.jwt.id) {
                 return res.status(403).send("Permissions didn't match");
             }
 
@@ -154,7 +158,7 @@ class AuthenticationController {
                 secure: true,
                 sameSite: "none",
                 httpOnly: true,
-                domain: hostUrl,
+                domain,
                 signed: true,
                 path: "/",
             });
@@ -185,49 +189,53 @@ class AuthenticationController {
         }
         delete credential['otp'];
 
+        try {
+            const user = new User({ ...credential, active: true });
 
-        const user = new User({ ...credential, active: true });
+            await user.save();
 
-        await user.save();
+            const settings = new Settings({ user });
+            await settings.save();
 
-        const settings = new Settings({ user });
-        await settings.save();
+            if (!user) {
+                return res.status(500).json({ status: "ERROR", response: "User not found" });
+            }
 
-        if (!user) {
-            return res.status(500).json({ status: "ERROR", response: "User not found" });
+            console.log('host url is here', hostUrl)
+            res.clearCookie(COOKIE_NAME, {
+                secure: true,
+                sameSite: "none",
+                httpOnly: true,
+                domain,
+                signed: true,
+                path: "/",
+            });
+
+            const token = createToken(user, "7d");
+            const expires = new Date();
+            expires.setDate(expires.getDate() + 7);
+
+            res.cookie(COOKIE_NAME, token, {
+                secure: true,
+                sameSite: "none",
+                httpOnly: true,
+                path: "/",
+                domain,
+                expires,
+                signed: true,
+            });
+
+            await redisDB.del(`otp_${crypto}`);
+            delete credential['password'];
+
+            if (mail) return res.redirect('/');
+            return res
+                .status(200)
+                .json({ status: "OK", user: credential });
+        } catch (e) {
+            console.error(e);
+            return res.status(500).json({ status: "ERROR", response: "Internal Server Error" });
         }
-
-
-        res.clearCookie(COOKIE_NAME, {
-            secure: true,
-            sameSite: "none",
-            httpOnly: true,
-            domain: hostUrl,
-            signed: true,
-            path: "/",
-        });
-
-        const token = createToken(user._id.toString(), user.email, user.fullname, "7d");
-        const expires = new Date();
-        expires.setDate(expires.getDate() + 7);
-
-        res.cookie(COOKIE_NAME, token, {
-            secure: true,
-            sameSite: "none",
-            httpOnly: true,
-            path: "/",
-            domain: hostUrl,
-            expires,
-            signed: true,
-        });
-
-        await redisDB.del(`otp_${crypto}`);
-        delete credential['password'];
-
-        if (mail) res.redirect('/');
-        return res
-            .status(200)
-            .json({ status: "OK", user: credential });
     }
 
 
@@ -259,16 +267,20 @@ class AuthenticationController {
         if (!email) {
             return res.status(401).json({ status: "ERROR", response: "Invalid or expired token" });
         }
+        try {
+            const hashedPassword = await hash(password);
+            await User.findOneAndUpdate(
+                { email },
+                { $set: { password: hashedPassword } },
+                { new: true }
+            );
 
-        const hashedPassword = await hash(password);
-        await User.findOneAndUpdate(
-            { email },
-            { $set: { password: hashedPassword } },
-            { new: true }
-        );
-
-        await redisDB.del(`reset_${crypto}`);
-        res.status(201).json({ status: "OK", response: "Password reset successfully" })
+            await redisDB.del(`reset_${crypto}`);
+            res.status(201).json({ status: "OK", response: "Password reset successfully" })
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ status: "ERROR", response: "Internal Server Error" });
+        }
     }
 }
 

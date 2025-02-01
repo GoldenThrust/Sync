@@ -115,6 +115,9 @@ button, .button):focus {
   color: #ffffff;
 }
 
+#room {
+  color: white;
+}
 #lobby::before, #room::before {
   content: "";
   position: absolute;
@@ -175,7 +178,7 @@ label:has(:is(input, textarea):focus) div {
 }
 
 :is(input, textarea):focus {
-  color: #d9d9d9;
+  /* color: #d9d9d9; */
 }
 
 

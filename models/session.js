@@ -1,31 +1,38 @@
 import { model, Schema } from 'mongoose';
 
-const SessionSchema = new Schema({
+const SessionSchema = new Schema(
+  {
     sessionId: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
     },
     activeUsers: {
-        type: [Schema.Types.Mixed],
-        ref: 'User',
+      type: [Schema.Types.Mixed],
+      ref: 'User',
     },
     invitedUsers: {
-        type: [Schema.Types.ObjectId],
-        ref: 'User',
+      type: [Schema.Types.ObjectId],
+      ref: 'User',
     },
     activeDate: {
-        type: Date,
-        default: new Date(),
+      type: Date,
+      default: () => new Date(),
     },
-    Duration: {
-        type: TimeRanges,
+    duration: {
+      type: Number,
+      default: 3600000,
     },
     visibility: {
-        type: ['private', 'public'],
-        required: true
+      type: String,
+      enum: ['private', 'public'],
+      default: 'public',
     },
-    passcode: String
-}, { timestamps: true })
+    passcode: {
+      type: String,
+    },
+  },
+  { timestamps: true }
+);
 
 const Session = model('Session', SessionSchema);
 export default Session;

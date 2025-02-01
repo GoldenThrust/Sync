@@ -22,7 +22,7 @@ const __dirname = path.dirname(__filename);
 
 
 const PORT = process.env.PORT || 443;
-const allowUrl = "0.0.0.0/0";
+const allowUrl = [`http://localhost:5173`, `http://${getIPAddress()}:5173`, `https://${getIPAddress()}:${PORT}`, 'https://localhost:3000'];
 
 
 const app = express();
@@ -63,7 +63,7 @@ server.listen(PORT, () => {
   const io = new Server(server, {
     adapter: createAdapter(redisDB.client),
     cors: {
-      origin: 'http://localhost:5173',
+      origin: [allowUrl],
       credentials: true
     },
 

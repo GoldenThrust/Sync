@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import { useEffect, useRef } from "react";
 
-export default function Video({ userID, stream, muted = false, className }) {
+export default function Video({ user, stream, muted = false, className }) {
     const videoRef = useRef();
 
     useEffect(() => {
@@ -24,20 +24,15 @@ export default function Video({ userID, stream, muted = false, className }) {
 
             playVideo();
         }
-
-        return () => {
-            if (videoCurrent.srcObject) {
-                videoCurrent.srcObject.getTracks().forEach((track) => track.stop());
-                videoCurrent.srcObject = null;
-            }
-        };
     }, [stream]);
 
-    return <video ref={videoRef} autoPlay playsInline className={className} muted={muted} id={userID} />;
+    return <div className={className} key={`video-${stream.id}`}>
+        <video ref={videoRef} autoPlay playsInline muted={muted} id={user.id} />
+    </div>;
 }
 
 Video.propTypes = {
-    userID: PropTypes.string.isRequired,
+    user: PropTypes.object.isRequired,
     stream: PropTypes.object.isRequired,
     muted: PropTypes.bool,
     className: PropTypes.string,

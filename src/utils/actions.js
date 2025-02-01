@@ -1,28 +1,44 @@
-export function endCall(socket, navigate) {
-    return () => {
-        if (socket)
-            socket.emit('end-call');
-        navigate('/', { replace: true });
+export function endCall(socket, navigate, mediaStream) {
+    if (socket) {
+        socket.emit('end-call');
     }
-};
+    mediaStream?.getTracks().forEach((track) => track.stop());
+    navigate('/meet/create', { replace: true });
+}
 
 export function toggleCamera(updateSettings, settings) {
     return (dispatch) => {
-        dispatch(updateSettings({ ...settings, enabledVideo: !settings.enabledVideo }))
-    }
+        const enabledVideo = !settings.settings.enabledVideo;
+        dispatch(updateSettings({
+            ...settings,
+            settings: { ...settings.settings, enabledVideo }
+        }));
+    };
 }
 
 export function toggleAudio(updateSettings, settings) {
     return (dispatch) => {
-        dispatch(updateSettings({ ...settings, enabledAudio: !settings.enabledAudio }))
-    }
+        const enabledAudio = !settings.settings.enabledAudio;
+        dispatch(updateSettings({
+            ...settings,
+            settings: { ...settings.settings, enabledAudio }
+        }));
+    };
 }
 
-export function toggleFacingMode(updateSettings, settings, mediaStream, setInitiated) {
+export function toggleFacingMode(updateSettings, settings, mediaStream) {
     return (dispatch) => {
-        const facingMode = settings.video.facingMode === "user" ? "environment" : "user";
-        dispatch(updateSettings({ ...settings, video: { ...settings.video, facingMode } }));
+        const facingMode = settings.settings.video.facingMode === "user" ? "environment" : "user";
+        dispatch(updateSettings({
+            ...settings,
+            settings: {
+                ...settings.settings,
+                video: {
+                    ...settings.settings.video,
+                    facingMode,
+                },
+            },
+        }));
         mediaStream?.getTracks().forEach((track) => track.stop());
-        setInitiated(false);
-    }
+    };
 }

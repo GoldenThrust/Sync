@@ -2,8 +2,8 @@ import jwt from "jsonwebtoken";
 import { COOKIE_NAME } from "../utils/constants.js";
 import process from "process";
 
-export function createToken(id, email, fullname, expiresIn) {
-  const payload = { id, email, fullname };
+export function createToken(user, expiresIn) {
+  const payload = { id: user._id.toString(), email: user.email, fullname: user.fullname, image: user.image };
   const jwtSecret = process.env.JWT_SECRET;
   const token = jwt.sign(payload, jwtSecret, {
     expiresIn,
@@ -25,7 +25,7 @@ export async function verifyToken(req, res, next) {
   try {
     const jwtSecret = process.env.JWT_SECRET;
     const jwtData = jwt.verify(token, jwtSecret);
-    res.locals.jwtData = jwtData;
+    res.jwt = jwtData;
     return next();
   } catch (error) {
     if (!req.path.startsWith('/api')) {

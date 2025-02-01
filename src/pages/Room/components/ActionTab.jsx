@@ -3,10 +3,10 @@
 // import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 
-export default function ActionTab({ className, action }) {
+export default function ActionTab({ className, actions }) {
     return (
         <div className={className}>
-            {action.map((act, index) =>
+            {actions.map((act, index) =>
                 <span className="button w-14 aspect-square flex justify-center items-center rounded-full cursor-pointer active:animate-ping" onClick={act.func} key={index}>
                     {act.logo}
                 </span>
@@ -17,5 +17,5 @@ export default function ActionTab({ className, action }) {
 
 ActionTab.propTypes = {
     className: PropTypes.string,
-    action: PropTypes.arrayOf(PropTypes.object).isRequired,
+    actions: PropTypes.arrayOf(PropTypes.object).isRequired,
 };

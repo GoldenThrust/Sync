@@ -1,32 +1,33 @@
 import { createTransport } from "nodemailer";
-import { hostUrl } from "../utils/constants.js";
+import { Dev, hostUrl } from "../utils/constants.js";
 import process from "process";
 
 class MailService {
     constructor() {
         this.hostUrl = hostUrl;
-        // this.transporter = createTransport({
-        //     service: "Gmail",
-        //     host: process.env.MAIL_HOST,
-        //     port: process.env.MAIL_PORT,
-        //     secure: true,
-        //     auth: {
-        //         user: process.env.MAIL_USERNAME,
-        //         pass: process.env.MAIL_PASSWORD,
-        //     },
-        // });
-
-        this.transporter = createTransport({
-            host: 'localhost',
+        const configOptions = Dev ? {
+            host: '0.0.0.0',
             port: 1025,
             secure: false,
             tls: {
                 rejectUnauthorized: false,
             },
-        });
+
+        } : {
+            service: "Gmail",
+            host: process.env.MAIL_HOST,
+            port: process.env.MAIL_PORT,
+            secure: true,
+            auth: {
+                user: process.env.MAIL_USERNAME,
+                pass: process.env.MAIL_PASSWORD,
+            },
+        }
+
+        this.transporter = createTransport(configOptions);
     }
     async sendOTP(user, crypto) {
-        const verificationLink = `${this.hostUrl}/activate-account/${crypto}/${user.otp}?mail=true`;
+        const verificationLink = `${this.hostUrl}/api/auth/activate/${crypto}/${user.otp}?mail=true`;
 
         const mailTemplate = `
         <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
@@ -72,7 +73,7 @@ class MailService {
     }
 
     async sendResetPasswordEmail(user, crypto) {
-        const resetPasswordLink = `${this.hostUrl}/reset-password/${crypto}/`;
+        const resetPasswordLink = `${this.hostUrl}/api/auth/reset-password/${crypto}/`;
 
         const mailTemplate = `
   <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
