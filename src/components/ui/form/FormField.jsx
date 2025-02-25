@@ -1,4 +1,4 @@
-import InputField from "./inputField";
+import InputField from "./InputField";
 import TextArea from "./TextArea";
 
 export default function FormField({ data, hook, className }) {

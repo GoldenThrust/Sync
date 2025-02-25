@@ -18,6 +18,10 @@ const UserSchema = new Schema({
     active: {
         type: Boolean,
         default: false
+    },
+    privacypolicy: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true })
 

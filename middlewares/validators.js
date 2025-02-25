@@ -63,7 +63,7 @@ export const signupValidator = [
 export const settingsValidator = [
   body('video')
     .notEmpty()
-    .withMessage('Please provide a video settings')
+    .withMessage('Please prNovide a video settings')
     .isJSON()
     .withMessage('Video settings must be JSON'),
   body('audio')

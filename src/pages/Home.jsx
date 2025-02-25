@@ -166,9 +166,9 @@ export default function Home() {
                     <div>
                         Follow Us:
                         <div className="flex mt-2 space-x-4">
-                            <Link to="#" className="w-10 block p-3 bg-color rounded-full" ><img src={GithubIcon} alt="Github Icon" /></Link>
-                            <Link to="#" className="w-10 block p-3 bg-color rounded-full" ><img src={LinkedInIcon} alt="LinkedIn Icon" /></Link>
-                            <Link to="#" className="w-10 block p-3 bg-color rounded-full" ><img src={TwitterIcon} alt="Twitter Icon" /></Link>
+                            <Link to="https://github.com/GoldenThrust" className="w-10 block p-3 bg-color rounded-full" ><img src={GithubIcon} alt="Github Icon" /></Link>
+                            <Link to="https://www.linkedin.com/in/olajide-adeniji/" className="w-10 block p-3 bg-color rounded-full" ><img src={LinkedInIcon} alt="LinkedIn Icon" /></Link>
+                            <Link to="https://x.com/Goldenthrust3" className="w-10 block p-3 bg-color rounded-full" ><img src={TwitterIcon} alt="Twitter Icon" /></Link>
                         </div>
                     </div>
                 </section>
