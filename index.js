@@ -35,9 +35,10 @@ const optionalAuthRoutes = [
   /^\/auth\/(?!verify|update-profile|logout).*$/,
   /^\/api\/auth\/(?!verify|update-profile).*$/,
 ];
-app.use(cors({ origin: allowUrl, credentials: true }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
+app.use(cors({ origin: allowUrl, credentials: true }));
 
 app.use(authOptionalMiddleware(optionalAuthRoutes))
 app.use('/api/auth', authRoutes);

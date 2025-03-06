@@ -56,6 +56,7 @@ class AuthenticationController {
         try {
             const { fullname, email, password } = req.body;
             let image = '';
+            console.log('registering image')
             if (req.file) {
                 image = req.file.path;
             }

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { loginValidator, resetPasswordValidator, signupValidator, validate } from "../middlewares/validators.js";
 import authContoller from "../controllers/authenticationController.js";
-import { upload } from "../utils/constants.js";
+import upload from "../utils/multerConfig.js";
 
 const authRoutes = Router();
 

@@ -49,7 +49,6 @@ export const signupValidator = [
     .withMessage("Name is required")
     .matches(/^[a-zA-Z]+( [a-zA-Z]+){1,2}$/)
     .withMessage("Name should consist of a first name, an optional middle name, and a last name, separated by a single space each."),
-
   body().custom((value, { req }) => {
     if (!req.file) {
       throw new Error('Please provide a profile picture');
