@@ -111,7 +111,7 @@ export default function Home() {
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 className="block md:hidden p-2 rounded-lg hover:bg-gray-100"
             >
-                <Menu className="w-6 h-6 text-black" />
+                <Menu className="w-6 h-6 hover:text-black" />
             </button>
         </header>
 
@@ -139,7 +139,7 @@ export default function Home() {
         )}
         <main className="space-y-16">
             <section className=" px-4 w-full lg:w-1/2 mt-16 mb-24 text-center lg:text-left">
-                <div className="text-4xl md:text-6xl lg:text-8xl font-serif text-slate-800">Synchronize for work, play, and Everything in between</div>
+                <div className="text-4xl md:text-6xl lg:text-8xl font-serif md:text-slate-800 text-shadow">Synchronize for work, play, and Everything in between</div>
                 <div className="my-3 text-slate-600">A single platform for all your communication need</div>
                 <Link to={isAuthenticated ? "/meet/create" : "/auth/signup" } className="block bg-color mx-auto lg:mx-0 w-40 rounded-ss-2xl rounded-ee-2xl p-3 text-md font-medium font-serif text-center text-white">{isAuthenticated ? 'Start Meeting' : 'Get Started'}</Link>
             </section>
@@ -160,7 +160,7 @@ export default function Home() {
                 backgroundColor: '#0a1214b7'
             }}>
                 <section className="space-y-2">
-                    <img src="./sync.svg" alt="Sync Logo" className="w-14 h-14 drop-shadow-2xl" />
+                    <img src={SyncLogo} alt="Sync Logo" className="w-14 md:m-0 m-auto h-14 drop-shadow-2xl" />
                     <div className="text-xl font-bold">Video Chat, Reimagined.</div>
                     <div className="text-sm">{`Sync isn’t just another video chat app; it's a space for real connection, seamless interaction, and trusted privacy. Whether you’re catching up with friends, joining study groups, or hosting virtual meetups, Sync brings everyone together effortlessly.`}</div>
                     <div>
@@ -175,14 +175,14 @@ export default function Home() {
                 <section className="space-y-5">
                     <div className="text-xl font-bold">Contact Us:</div>
                     <form className="space-y-3" onSubmit={messageSubmit(onMessageSubmit)}>
-                        <FormField data={contactUs} hook={messageFormHook} className="w-3/4" />
-                        <Button value="Send" className="w-3/4" />
+                        <FormField data={contactUs} hook={messageFormHook} className="md:w-3/4 w-full" />
+                        <Button value="Send" className="md:w-3/4 w-full" />
                     </form>
                 </section>
                 <section className="space-y-5">
                     <div className="space-y-2">
                         <div className="text-xl font-bold">NEWSLETTER</div>
-                        <OneFormField name="email" placeholder="Enter Your Email" FormIcon={<Mail />} SubmitIcon={<Send />} type="email" OnSubmit={onNewsLetterSubmit} className="w-3/4" />
+                        <OneFormField name="email" placeholder="Enter Your Email" FormIcon={<Mail />} SubmitIcon={<Send />} type="email" OnSubmit={onNewsLetterSubmit} className="md:w-3/4 w-full" />
                     </div>
                     <div className="grid grid-cols-2 gap-4" >
                         <Link to="#" >About</Link>

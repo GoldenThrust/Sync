@@ -188,3 +188,7 @@ label:has(:is(input, textarea):focus) div {
   color: #d9d9d9;
   border-radius: 20px;
 }
+
+.text-shadow {
+  text-shadow: 2px 2px 4px rgb(255, 255, 255);
+}
