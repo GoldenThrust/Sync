@@ -80,26 +80,30 @@ const router = createBrowserRouter([
         ]
       },
       {
-        path: 'meet',
+        path: 'lobby',
         element: <NotAuthorized />,
         children: [
           {
-            path: 'create',
+            path: 'initiate',
             element: <CreateRoom />
           },
           {
-            path: 'lobby/:id',
+            path: 'waiting-room/:id',
             element: <Lobby />
-          },
-          {
-            path: 'room/:id',
-            element: <Room />
-          },
-          {
-            path: 'room/test/:id',
-            element: <Room2 />
           }
         ]
+      },
+      {
+        path: "",
+        element: <NotAuthorized />,
+        children: [{
+          path: 'room/:id',
+          element: <Room />
+        },
+        {
+          path: 'room/test/:id',
+          element: <Room2 />
+        }]
       }
     ]
   }

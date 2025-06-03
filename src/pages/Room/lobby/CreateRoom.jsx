@@ -14,7 +14,7 @@ export default function CreateRoom() {
 
     const instantMeeting = () => {
         const id = uuid();
-        navigate(`/meet/lobby/${id}`);
+        navigate(`/lobby/waiting-room/${id}`);
     }
 
     const scheduleMeeting = () => {

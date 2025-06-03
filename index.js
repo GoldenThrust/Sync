@@ -42,7 +42,7 @@ app.use(cors({ origin: allowUrl, credentials: true }));
 
 app.use(authOptionalMiddleware(optionalAuthRoutes))
 app.use('/api/auth', authRoutes);
-app.use('/api/meet', meetRoutes);
+app.use('/api/lobby', meetRoutes);
 app.use('/api/settings', settingsRoutes);
 
 

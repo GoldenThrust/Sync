@@ -11,7 +11,7 @@ export default function Settings({ setSettingsOpen }) {
     const SendInvite = useCallback(async (data) => {
         try {
             toast.loading('Sending invite', { id: 'invite' });
-            await axios.post('/meet/send-invite', data);
+            await axios.post('/lobby/send-invite', data);
             toast.success('Invite sent', { id: 'invite' });
         } catch (err) {
             console.error(err);
