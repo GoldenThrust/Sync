@@ -136,7 +136,7 @@ class AuthenticationController {
 
             return res
                 .status(200)
-                .json({ status: "OK", response: { fullname, email, image } });
+                .json({ status: "OK", response: { fullname, email, image, token } });
         } catch (error) {
             console.error(error);
             return res.status(500).json({ status: "ERROR", response: "Internal Server Error" });
@@ -228,6 +228,8 @@ class AuthenticationController {
 
             await redisDB.del(`otp_${crypto}`);
             delete credential['password'];
+            credential['token'] = token;
+
 
             if (mail) return res.redirect('/');
             return res

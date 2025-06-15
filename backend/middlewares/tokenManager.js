@@ -13,12 +13,17 @@ export function createToken(user, expiresIn) {
 }
 
 export async function verifyToken(req, res, next) {
-  const token = req.signedCookies[COOKIE_NAME];
+  // Check for Bearer token in Authorization header
+  const authHeader = req.headers.authorization;
+  let token = null;
+  
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7); // Remove 'Bearer ' prefix
+  } else {
+    token = req.body['token'] ?? req.signedCookies[COOKIE_NAME];
+  }
 
   if (!token || token.trim() === "") {
-    if (!req.path.startsWith('/api')) {
-      return res.redirect('/auth/login');
-    }
     return res.status(401).json({ response: "Token Not Received" });
   }
 
@@ -28,9 +33,6 @@ export async function verifyToken(req, res, next) {
     res.jwt = jwtData;
     return next();
   } catch (error) {
-    if (!req.path.startsWith('/api')) {
-      return res.redirect('/auth/login');
-    }
     console.error("Token verification error:", error);
     return res.status(401).json({ response: "Token Expired or Invalid" });
   }
