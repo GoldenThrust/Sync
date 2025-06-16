@@ -20,7 +20,7 @@ export async function verifyToken(req, res, next) {
   if (authHeader && authHeader.startsWith('Bearer ')) {
     token = authHeader.substring(7); // Remove 'Bearer ' prefix
   } else {
-    token = req.body['token'] ?? req.signedCookies[COOKIE_NAME];
+    token = req.signedCookies[COOKIE_NAME];
   }
 
   if (!token || token.trim() === "") {

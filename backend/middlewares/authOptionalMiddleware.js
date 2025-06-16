@@ -15,9 +15,6 @@ export function authOptionalMiddleware(regexArray) {
                     const user = await User.findById(res.jwt.id);
 
                     if (!user) {
-                        if (!req.path.startsWith('/api')) {
-                            return res.redirect('/auth/login');
-                        }
                         return res.status(401).json({
                             status: "ERROR",
                             response: "User not registered OR Token malfunctioned",
@@ -25,9 +22,6 @@ export function authOptionalMiddleware(regexArray) {
                     }
 
                     if (!user.active) {
-                        if (!req.path.startsWith('/api')) {
-                            return res.redirect('/auth/login');
-                        }
                         return res.status(403).json({
                             status: "ERROR",
                             response: "Account is not active",
@@ -38,9 +32,6 @@ export function authOptionalMiddleware(regexArray) {
 
                     return next();
                 } catch (error) {
-                    if (!req.path.startsWith('/api')) {
-                        return res.redirect('/auth/login');
-                    }
                     console.error("User validation error:", error);
                     return res.status(500).json({
                         status: "ERROR",
@@ -49,9 +40,6 @@ export function authOptionalMiddleware(regexArray) {
                 }
             });
         } catch (error) {
-            if (!req.path.startsWith('/api')) {
-                return res.redirect('/auth/login');
-            }
             console.error("General authentication error:", error);
             return res.status(500).json({
                 status: "ERROR",

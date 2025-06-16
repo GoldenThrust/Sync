@@ -1,6 +1,7 @@
 import { loginRequest, loginSuccess, loginFailure, AuthResponse, AuthError, processingData, logout, verificationFailed } from './authSlice.js';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+const token = localStorage.getItem("token");
 
 export const login = (form) => async (dispatch) => {
   try {
@@ -9,6 +10,9 @@ export const login = (form) => async (dispatch) => {
     const res = await axios.post('auth/login', form);
     const user = res.data.response;
     toast.success("Successfully signed in!", { id: "login" })
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("token", user.token);
+    delete user["token"];
     dispatch(loginSuccess(user));
   } catch (error) {
     toast.error("Failed to sign in. Please try again.", { id: "login" })
@@ -18,11 +22,17 @@ export const login = (form) => async (dispatch) => {
 
 
 export const logoutAction = () => async (dispatch) => {
-  try {
+  try {  
     dispatch(processingData());
-    const res = await axios.get('auth/logout');
+    const res = await axios.get('auth/logout', token ? {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    } : {});
     const user = res.data.response;
+    localStorage.removeItem("user");
     dispatch(logout(user));
+    toast.success("Successfully logged out!");
   } catch (error) {
     dispatch(AuthError(error.response.data.response));
   }
@@ -31,11 +41,24 @@ export const logoutAction = () => async (dispatch) => {
 
 export const verify = () => async (dispatch) => {
   try {
-    dispatch(loginRequest());
-    const res = await axios.get('auth/verify');
-    const user = res.data.response;
+    const user = JSON.parse(localStorage.getItem("user"));
+
+    if (user && token) {
+      dispatch(loginSuccess(user));
+    } else {
+      dispatch(loginRequest());
+    }
+
+    const res = await axios.get('auth/verify', token ? {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    } : {});
+    user = res.data.response;
+    localStorage.setItem("user", JSON.stringify(user));
     dispatch(loginSuccess(user));
   } catch (error) {
+    localStorage.removeItem("user");
     dispatch(verificationFailed(error.response.data.response));
   }
 }
@@ -90,6 +113,9 @@ export const accountActivation = (crypto, otp) => async (dispatch) => {
     dispatch(loginRequest());
     const res = await axios.get(`auth/activate/${crypto}/${otp}`);
     const user = res.data.response;
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("token", user.token);
+    delete user["token"];
     dispatch(loginSuccess(user));
     toast.success("Account Activated", { id: "otp" })
   } catch (error) {

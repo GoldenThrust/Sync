@@ -5,6 +5,7 @@ import axios from "axios";
 import "./globals.css";
 import "@/lib/styles/app.css"
 import Providers from "../lib/redux/provider.js";
+import store from '@/lib/redux/store.js';
 
 
 export const metadata = {
@@ -15,8 +16,7 @@ export const metadata = {
 axios.defaults.baseURL = `${baseUrl}/api`;
 axios.defaults.withCredentials = true;
 
-
-export default function RootLayout({ children, repo }) {
+export default function RootLayout({ children, }) {
   return (
     <html lang="en">
       <body>

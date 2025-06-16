@@ -13,8 +13,8 @@ class DB {
       await mongoose.connect(this.uri, {
         autoIndex: true,
       });
-
       console.log("Successfully connected to MongoDB!");
+
     } catch (error) {
       console.error(error);
     }
@@ -23,19 +23,17 @@ class DB {
 
 
 class RedisClient {
-  client;
-
   constructor() {
-    this.client = createClient({ url: process.env.REDIS_URI });
+    this.client = createClient(process.env.REDIS_URL || "redis://localhost:6379");
 
-    this.client.on("error", (err) => {
-      console.error("Redis client failed to connect:", err);
-    });
+    this.client;
   }
 
   async run() {
     try {
-      await this.client.connect();
+      this.client = await this.client.on("error", (err) => {
+        console.error("Redis client failed to connect:", err);
+      }).connect();
       console.log("Successfully connected to Redis!");
     } catch (err) {
       console.error("Redis client failed to connect:", err);

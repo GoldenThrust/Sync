@@ -95,8 +95,9 @@ function initializeDatabases() {
 }
 
 function initializeSocketIO(server) {
+  const redisClient = redisDB.client.duplicate(); // Duplicate the Redis client for Socket.IO
   const io = new Server(server, {
-    adapter: createAdapter(redisDB.client),
+    adapter: createAdapter(redisClient, redisDB.client),
     cors: {
       origin: allowUrl,
       credentials: true

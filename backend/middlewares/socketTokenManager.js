@@ -3,9 +3,19 @@ import jwt from "jsonwebtoken";
 import process from "process";
 
 export default function socketAuthenticateToken(socket, next) {
-  const token = socket.request.signedCookies[COOKIE_NAME]
+  console.log('Token not received');
+  const req = socket.request;
+  const authHeader = req.headers.authorization;
+  let token = null;
+  
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7); // Remove 'Bearer ' prefix
+  } else {
+    token = req.signedCookies[COOKIE_NAME];
+  }
+
   if (!token || token.trim() === "") {
-    return next();
+    return socket.status(401).json({ response: "Token Not Received" });
   }
 
   try {
@@ -14,7 +24,7 @@ export default function socketAuthenticateToken(socket, next) {
     socket.user = jwtData;
     return next();
   } catch (error) {
-    next();
-    return console.error(error);
+    console.error("Token verification error:", error);
+    return res.status(401).json({ response: "Token Expired or Invalid" });
   }
 }

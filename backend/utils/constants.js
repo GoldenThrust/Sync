@@ -12,3 +12,4 @@ export const Dev = process.env.DEV === "TRUE" ? true : false;
 
 export const hostUrl = process.env.NEXT_HOST_URL;
 export const upload = multer({ dest: './uploads'});
+
