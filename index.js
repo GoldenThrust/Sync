@@ -25,13 +25,10 @@ const __dirname = path.dirname(__filename);
 
 
 const PORT = process.env.PORT || 443;
-const allowUrl = [`http://localhost:5173`, `http://${getIPAddress()}:5173`, `https://${getIPAddress()}:${PORT}`, 'https://localhost:3000'];
-
 
 const app = express();
 
 
-const server = createServer(app);
 const HTTPS_PORT = process.env.HTTPS_PORT || 443;
 const HTTP_PORT = process.env.HTTP_PORT || 8080;
 const USE_HTTPS = process.env.USE_HTTPS === 'TRUE';
@@ -44,9 +41,6 @@ const allowUrl = [
   'https://localhost:3000',
   'http://localhost:3000'
 ];
-
-
-const app = express();
 
 const optionalAuthRoutes = [
   /^\/$/,
@@ -83,15 +77,6 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
-
-
-server.listen(PORT, () => {
-  console.log(`Server is running on port https://localhost:${PORT}  https://${getIPAddress()}:${PORT}`);
-
-  mongoDB.run().catch(console.dir)
-  redisDB.run().catch(console.dir)
-
-app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 
 let server;
 
@@ -142,8 +127,4 @@ function initializeSocketIO(server) {
 
 
   websocket.getConnection(io);
-});
-
-export default app;
-
 }
