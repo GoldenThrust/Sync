@@ -41,7 +41,7 @@ export const logoutAction = () => async (dispatch) => {
 
 export const verify = () => async (dispatch) => {
   try {
-    const user = JSON.parse(localStorage.getItem("user"));
+    let user = JSON.parse(localStorage.getItem("user"));
 
     if (user && token) {
       dispatch(loginSuccess(user));

@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { createServer } from "http";
 import { createServer as createHttpsServer } from "https";
 import { createServer as createHttpServer } from "http";
 import "dotenv/config";
@@ -24,8 +23,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 
-const PORT = process.env.PORT || 443;
-
 const app = express();
 
 
@@ -42,6 +39,9 @@ const allowUrl = [
   'http://localhost:3000'
 ];
 
+// app.get('/', (req, res) => {
+//   res.send('Backend is working');
+// });
 const optionalAuthRoutes = [
   /^\/$/,
   /^\/assets\//,
@@ -52,18 +52,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(cors({ origin: allowUrl, credentials: true }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser(process.env.COOKIE_SECRET));
-app.use(cors({ origin: allowUrl, credentials: true }));
 
-app.use(authOptionalMiddleware(optionalAuthRoutes))
-app.use('/api/auth', authRoutes);
-app.use('/api/lobby', meetRoutes);
-app.use('/api/settings', settingsRoutes);
-app.get('/', (req, res) => {
-  res.send('Backend is working');
-});
 app.use(authOptionalMiddleware(optionalAuthRoutes))
 app.use('/api/auth', authRoutes);
 app.use('/api/lobby', meetRoutes);
@@ -73,7 +62,7 @@ app.use('/api/settings', settingsRoutes);
 app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 app.use(express.static(path.join(__dirname, "dist")));
 
-app.get("*", (req, res) => {
+app.get(/(.*)/, (req, res) => {
   res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
