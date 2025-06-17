@@ -10,7 +10,7 @@ class MeetController {
             const session = new Session({ sessionId: id });
             await session.save();
         }
-        return res.redirect(`${process.env.DEV_URL}/lobby/room/` + id)
+        return res.redirect(`${process.env.CLIENT_URL}/lobby/room/` + id)
     }
 
 

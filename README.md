@@ -38,8 +38,8 @@ Create a `.env` file in the root directory with the following variables:
 ```
 # Server Configuration
 PORT=3000
-HOST_URL=http://localhost:3000
-DEV_URL=http://localhost:5173
+VITE_SERVER_URL=http://localhost:3000
+CLIENT_URL=http://localhost:5173
 
 # Database Configuration
 MONGODB_URI=mongodb://localhost:27017/sync
@@ -48,7 +48,7 @@ REDIS_URI=redis://localhost:6379
 # Authentication
 JWT_SECRET=your_jwt_secret_key
 COOKIE_SECRET=your_cookie_secret
-COOKIE_NAME=sync_session
+COOKIE_NAME=auth_token
 COOKIE_DOMAIN=localhost
 
 # Email Configuration (for sending OTP and invites)

@@ -6,13 +6,13 @@ import { Router } from 'express';
 import { RedisStore } from 'connect-redis';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
-import { COOKIE_NAME } from '../../utils/constants.js';
+import { COOKIE_NAME, domain } from '../../utils/constants.js';
 
 const googleAuthRoutes = Router();
 const oauth2Client = new google.auth.OAuth2(
     process.env.GOOGLE_CLIENT_ID,
     process.env.GOOGLE_CLIENT_SECRET,
-    process.env.GOOGLE_CALLBACK_URL
+    process.env.VITE_SERVER_URL + process.env.GOOGLE_CALLBACK_URL
 );
 
 let sessionStore = new RedisStore({
@@ -81,22 +81,13 @@ googleAuthRoutes.get('/google/callback', async (req, res) => {
             return res.status(400).json({ error: 'Google authentication failed' });
         }
 
-        // Find or create user in database
-        let [user, created] = await User.findOrCreate({
-            where: { email: data.email },
-            defaults: {
-                googleId: data.id,
-                fullname: data.name,
-                email: data.email,
-                image: data.image,
-                active: true,
-                privacypolicy: true
-            }
-        });
+        // Check if user already exists
+        let user = await User.findOne({ email: data.email });
 
-        // Update user data if it exists but some fields changed
-        if (!created) {
-            user = await user.update({
+        let created = false;
+
+        if (!user) {
+            user = new User({
                 googleId: data.id,
                 fullname: data.name,
                 email: data.email,
@@ -104,6 +95,24 @@ googleAuthRoutes.get('/google/callback', async (req, res) => {
                 active: true,
                 privacypolicy: true
             });
+            created = true;
+        }
+        await user.save();
+
+        // Update user data if it exists but some fields changed
+        if (!created) {
+            user = await User.findOneAndUpdate(
+                { email: data.email },
+                {
+                    googleId: data.id,
+                    fullname: data.name,
+                    email: data.email,
+                    image: data.image,
+                    active: true,
+                    privacypolicy: true
+                },
+                { new: true }
+            );
         }
 
         const userPayload = {
@@ -114,17 +123,33 @@ googleAuthRoutes.get('/google/callback', async (req, res) => {
         };
 
         const token = jwt.sign(userPayload, process.env.JWT_SECRET, { expiresIn: '7d' });
-
-        res.cookie(COOKIE_NAME, token, {
+        res.clearCookie(COOKIE_NAME, {
+            secure: true,
+            sameSite: "none",
             httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000,
-            secure: process.env.NODE_ENV === 'production'
+            domain,
+            signed: true,
+            path: "/",
         });
 
-        res.redirect('/');
+        const expires = new Date();
+        expires.setDate(expires.getDate() + 7);
+
+        res.cookie(COOKIE_NAME, token, {
+            secure: true,
+            sameSite: "none",
+            httpOnly: true,
+            path: "/",
+            domain,
+            expires,
+            signed: true,
+        });
+
+
+        return res.redirect('/');
     } catch (error) {
         console.error('Error during Google authentication:', error);
-        res.status(500).json({ error: 'Authentication failed' });
+        return res.status(500).json({ error: 'Authentication failed' });
     }
 });
 

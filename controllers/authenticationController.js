@@ -1,16 +1,14 @@
 import User from "../models/user.js";
 import { hash, verify } from "argon2";
 import { createToken } from "../middlewares/tokenManager.js";
-import { COOKIE_NAME, hostUrl } from "../utils/constants.js";
+import { COOKIE_NAME, domain } from "../utils/constants.js";
 import mail from "../config/mail.js";
 import { redisDB } from "../config/db.js";
 import { v7 as uuid } from 'uuid';
 import fs from "fs";
 import createOTP from "../utils/functions.js";
 import Settings from "../models/settings.js";
-import { URL } from "url";
 
-const domain = (new URL(hostUrl)).hostname
 
 
 class AuthenticationController {
@@ -202,7 +200,6 @@ class AuthenticationController {
                 return res.status(500).json({ status: "ERROR", response: "User not found" });
             }
 
-            console.log('host url is here', hostUrl)
             res.clearCookie(COOKIE_NAME, {
                 secure: true,
                 sameSite: "none",

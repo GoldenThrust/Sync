@@ -5,7 +5,7 @@ export default function Button({ value, className, type = 'submit', onClick = ()
         return <input type={type} value={value} onClick={onClick} className={`button-style rounded-lg p-3 text-sm outline-none ${className}`} />
     }
 
-    return <button type={type} onClick={onClick} className={`button-style rounded-lg p-3 text-sm outline-none ${className}`}>
+    return <button type={type} onClick={onClick} className={`button-style rounded-lg p-3 text-sm outline-none hover:cursor-pointer ${className}`}>
         {value}
     </button>
 }

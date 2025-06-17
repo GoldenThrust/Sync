@@ -34,9 +34,7 @@ UserSchema.pre('save', function (next) {
     if (!this.googleId && !this.password) {
         return next(new Error('Either googleId or password must be set'));
     }
-    if (this.googleId && this.password) {
-        return next(new Error('Only one of googleId or password can be set'));
-    }
+
     next();
 });
 

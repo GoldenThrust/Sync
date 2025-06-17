@@ -4,7 +4,6 @@ import jwt from "jsonwebtoken";
 import process from "process";
 
 export default function socketAuthenticateToken(socket, next) {
-  console.log('Token not received');
   const req = socket.request;
   const authHeader = req.headers.authorization;
   let token = null;

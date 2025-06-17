@@ -21,6 +21,7 @@ export async function verifyToken(req, res, next) {
   } else {
     token = req.signedCookies[COOKIE_NAME];
   }
+
   if (!token || token.trim() === "") {
     return res.status(401).json({ response: "Token Not Received" });
   }
