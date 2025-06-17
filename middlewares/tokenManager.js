@@ -1,3 +1,4 @@
+
 import jwt from "jsonwebtoken";
 import { COOKIE_NAME } from "../utils/constants.js";
 import process from "process";
@@ -8,25 +9,21 @@ export function createToken(user, expiresIn) {
   const token = jwt.sign(payload, jwtSecret, {
     expiresIn,
   });
-
   return token;
 }
 
 export async function verifyToken(req, res, next) {
-  // Check for Bearer token in Authorization header
   const authHeader = req.headers.authorization;
   let token = null;
-  
+
   if (authHeader && authHeader.startsWith('Bearer ')) {
     token = authHeader.substring(7); // Remove 'Bearer ' prefix
   } else {
     token = req.signedCookies[COOKIE_NAME];
   }
-
   if (!token || token.trim() === "") {
     return res.status(401).json({ response: "Token Not Received" });
   }
-
   try {
     const jwtSecret = process.env.JWT_SECRET;
     const jwtData = jwt.verify(token, jwtSecret);

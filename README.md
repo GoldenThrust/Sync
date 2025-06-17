@@ -73,7 +73,7 @@ CLOUDINARY_API_SECRET=your_api_secret
 
 2. Install dependencies
    ```bash
-   npm install
+   npm install --legacy-peer-deps
    ```
 
 3. Start development servers (frontend and backend)

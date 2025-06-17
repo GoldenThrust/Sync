@@ -12,12 +12,13 @@ import { createAdapter } from "@socket.io/redis-streams-adapter";
 import { Server } from "socket.io";
 import websocket from "./config/websocket.js";
 import { getIPAddress } from "./utils/functions.js";
-import authRoutes from "./routes/auth.js";
+import authRoutes from "./routes/auth/auth.js";
 import { authOptionalMiddleware } from "./middlewares/authOptionalMiddleware.js";
 import meetRoutes from "./routes/meet.js";
 import settingsRoutes from "./routes/settings.js";
 
 import { certOptions } from "./utils/cert.js";
+import googleAuthRoutes from "./routes/auth/google_auth.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -55,6 +56,7 @@ app.use(cors({ origin: allowUrl, credentials: true }));
 
 app.use(authOptionalMiddleware(optionalAuthRoutes))
 app.use('/api/auth', authRoutes);
+app.use('/api/auth', googleAuthRoutes);
 app.use('/api/lobby', meetRoutes);
 app.use('/api/settings', settingsRoutes);
 

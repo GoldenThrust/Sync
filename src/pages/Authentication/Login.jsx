@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import googleIcon from "../../assets/icons/google.svg";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../authentication/authAction";
+import axios from "axios";
 export default function Login() {
     const hook = useForm();
     const { handleSubmit } = hook;
@@ -21,7 +22,13 @@ export default function Login() {
     ]
 
     const googleSignIn = () => {
-
+        axios.get('auth/google/url')
+            .then(response => {
+                window.location.href = response.data.url;
+            })
+            .catch(error => {
+                console.error('Error fetching Google auth URL:', error);
+            });
     }
 
     const signIn = (data) => {

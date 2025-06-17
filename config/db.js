@@ -12,6 +12,9 @@ class DB {
     try {
       await mongoose.connect(this.uri, {
         autoIndex: true,
+        appName: "sync",
+        dbName: process.env.REDIS_DB_NAME || "sync",
+
       });
       console.log("Successfully connected to MongoDB!");
 

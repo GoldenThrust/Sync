@@ -9,6 +9,7 @@ import Otp from "./components/Otp";
 import { AuthError } from "../../authentication/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { signup } from "../../authentication/authAction";
+import axios from "axios";
 export default function SignUp() {
     const hook = useForm();
     const dispatch = useDispatch();
@@ -38,7 +39,13 @@ export default function SignUp() {
     };
 
     const googleSignUp = () => {
-
+        axios.get('auth/google/url')
+            .then(response => {
+                window.location.href = response.data.url;
+            })
+            .catch(error => {
+                console.error('Error fetching Google auth URL:', error);
+            });
     }
 
     const signUp = (data) => {
