@@ -20,7 +20,7 @@ import { useSelector } from "react-redux";
 
 export default function Home() {
     const messageFormHook = useForm();
-    
+
     const { handleSubmit: messageSubmit } = messageFormHook;
     const { isAuthenticated } = useSelector((state) => state.auth)
 
@@ -105,13 +105,15 @@ export default function Home() {
                     </Link>
                 ))}
             </nav>
-            <Link to={`${isAuthenticated ? "/auth/logout" : "/auth/login"}`} className="bg-color w-28 rounded-lg p-2 text-center text-white hidden md:block">{isAuthenticated ? 'Logout' : 'Login' }</Link>
+            <Link to={`${isAuthenticated ? "/auth/logout" : "/auth/login"}`} className="bg-color w-28 rounded-lg p-2 text-center text-white hidden md:block" style={{
+                color: '#fff'
+            }}>{isAuthenticated ? 'Logout' : 'Login'}</Link>
             {/* Menu Icon */}
             <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 className="block md:hidden p-2 rounded-lg hover:bg-gray-100"
             >
-                <Menu className="w-6 h-6 hover:text-black" />
+                <Menu className="w-6 h-6 hover:text-gray-400" />
             </button>
         </header>
 
@@ -131,8 +133,11 @@ export default function Home() {
                     <Link
                         to={`${isAuthenticated ? "/auth/logout" : "/auth/login"}`}
                         className="text-white bg-black px-4 py-2 rounded-lg"
+                        style={{
+                            color: '#fff'
+                        }}
                     >
-                        {isAuthenticated ? 'Logout' : 'Login' }
+                        {isAuthenticated ? 'Logout' : 'Login'}
                     </Link>
                 </nav>
             </div>
@@ -141,7 +146,9 @@ export default function Home() {
             <section className=" px-4 w-full lg:w-1/2 mt-16 mb-24 text-center lg:text-left">
                 <div className="text-4xl md:text-6xl lg:text-8xl font-serif md:text-slate-800 text-shadow">Synchronize for work, play, and Everything in between</div>
                 <div className="my-3 text-slate-600">A single platform for all your communication need</div>
-                <Link to={isAuthenticated ? "/lobby/initiate" : "/auth/signup" } className="block bg-color mx-auto lg:mx-0 w-40 rounded-ss-2xl rounded-ee-2xl p-3 text-md font-medium font-serif text-center text-white">{isAuthenticated ? 'Start Meeting' : 'Get Started'}</Link>
+                <Link to={isAuthenticated ? "/lobby/initiate" : "/auth/signup"} className="block bg-color mx-auto lg:mx-0 w-40 rounded-ss-2xl rounded-ee-2xl p-3 text-md font-medium font-serif text-center text-white" style={{
+                color: '#fff'
+            }}>{isAuthenticated ? 'Start Meeting' : 'Get Started'}</Link>
             </section>
             <section>
                 <h2 className="text-center text-slate-800 mb-16 text-4xl md:text-6xl lg:text-8xl font-serif" id="features">Features</h2>
@@ -156,7 +163,7 @@ export default function Home() {
         </main>
 
         <footer className="absolute w-full right-0 space-y-5">
-            <div className="grid grid-cols-3 p-10 bg-color w-11/12 m-auto rounded-xl font-serif text-white" style={{
+            <div className="grid grid-cols-3 p-10 bg-color w-11/12 m-auto rounded-xl font-serif text-white  mb-16" style={{
                 backgroundColor: '#0a1214b7'
             }}>
                 <section className="space-y-2">
