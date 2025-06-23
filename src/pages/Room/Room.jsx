@@ -193,9 +193,9 @@ export default function Lobby() {
 
     return (
         <div className="h-screen w-screen" id="room">
-            {/* <Header className="flex border-b-2 p-2 bg-slate-900 bg-opacity-75 border-slate-200 border-opacity-20 flex-grow shadow-lg shadow-slate-900 absolute top-0 left-0 w-full z-10" /> */}
+            {/* <Header className="flex border-b-2 p-2 bg-slate-900/75 border-slate-200 border-opacity-20 flex-grow shadow-lg shadow-slate-900 absolute top-0 left-0 w-full z-10" /> */}
             <VideoGrid videos={remoteVideos} localVideo={videoStream} />
-            <Footer socket={socketRef.current} actions={actions} className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full p-2 bg-slate-900 bg-opacity-80 z-10" />
+            <Footer socket={socketRef.current} actions={actions} className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full p-2 bg-slate-900/80 z-10" />
             {/* {false && <SideBar className="hidden flex-col lg:flex w-1/5" />} */}
         </div>
     );

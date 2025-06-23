@@ -3,7 +3,7 @@ export function endCall(socket, navigate, mediaStream) {
         socket.emit('end-call');
     }
     mediaStream?.getTracks().forEach((track) => track.stop());
-    navigate('/lobby/initiate', { replace: true });
+    navigate('/meet/initiate', { replace: true });
 }
 
 export function toggleCamera(updateSettings, settings) {

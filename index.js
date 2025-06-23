@@ -32,12 +32,14 @@ const HTTP_PORT = process.env.HTTP_PORT || 8080;
 const USE_HTTPS = process.env.USE_HTTPS === 'TRUE';
 
 const allowUrl = [
+  `http://localhost`,
+  `https://localhost`,
   `http://localhost:5173`,
+  'https://localhost:3000',
+  'http://localhost:3000',
   `http://${getIPAddress()}:5173`,
   `https://${getIPAddress()}:${HTTPS_PORT}`,
   `http://${getIPAddress()}:${HTTP_PORT}`,
-  'https://localhost:3000',
-  'http://localhost:3000'
 ];
 
 // app.get('/', (req, res) => {
@@ -47,7 +49,7 @@ const optionalAuthRoutes = [
   /^\/$/,
   /^\/assets\//,
   /^\/auth\/(?!verify|update-profile|logout).*$/,
-  /^\/api\/auth\/(?!verify|update-profile).*$/,
+  /^\/api\/auth\/(?!verify|update-profile|logout).*$/,
 ];
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -57,7 +59,7 @@ app.use(cors({ origin: allowUrl, credentials: true }));
 app.use(authOptionalMiddleware(optionalAuthRoutes))
 app.use('/api/auth', authRoutes);
 app.use('/api/auth', googleAuthRoutes);
-app.use('/api/lobby', meetRoutes);
+app.use('/api/meet', meetRoutes);
 app.use('/api/settings', settingsRoutes);
 
 

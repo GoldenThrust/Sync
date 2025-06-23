@@ -6,22 +6,25 @@ import { useCallback } from "react"
 import axios from "axios"
 import toast from "react-hot-toast"
 
-export default function Settings({ setSettingsOpen }) {
+export default function Settings({ setSettingsOpen,sessionId }) {
 
     const SendInvite = useCallback(async (data) => {
+        data['sessionId'] = sessionId;
+
+        console.log(data);
         try {
-            toast.loading('Sending invite', { id: 'invite' });
-            await axios.post('/lobby/send-invite', data);
-            toast.success('Invite sent', { id: 'invite' });
+            toast.loading('Sending invite', { id: sessionId });
+            await axios.post('/meet/send-instant-invite', data);
+            toast.success('Invite sent', { id: sessionId });
         } catch (err) {
             console.error(err);
-            toast.error('Failed to send invite', { id: 'invite' });
+            toast.error('Failed to send invite', { id: sessionId });
         }
     }, []);
 
 
-    return <div className="absolute top-0 left-0 w-screen h-screen flex justify-center items-center z-20 bg-black bg-opacity-50">
-        <OneFormField FormIcon={<Link />} SubmitIcon={<Send />} name="email" placeholder="Invite friends" type="email" className="w-4/5 md:w-1/3" OnSubmit={SendInvite} />
+    return <div className="absolute top-0 left-0 w-screen h-screen flex justify-center items-center bg-black/50 z-20">
+        <OneFormField FormIcon={<Link />} SubmitIcon={<Send />} name="emails" placeholder="Invite friends" type="text" className="w-4/5 md:w-1/3 " OnSubmit={SendInvite} />
         <Button onClick={() => { setSettingsOpen(false) }} value={'Close'} />
     </div>
 }

@@ -16,8 +16,8 @@ export default function SideBar({ className }) {
             <ChatSection className="bg-blue-950 flex flex-col h-full" asChild />
         </div>
         <div className="flex-grow grid grid-cols-2   place-items-center bg-black border-t-2 border-slate-700 rounded-ss-lg">
-            <button onClick={handleSectionClick('message')} className={`flex h-1/2 focus:animate-pulse aspect-video justify-center items-center rounded-lg bg-opacity-55 ${selectedSection == 'message' && 'bg-slate-400'}`}><MessageSquareText color="white" /></button>
-            <button onClick={handleSectionClick('users')} className={`flex h-1/2 focus:animate-pulse aspect-video justify-center items-center rounded-lg bg-opacity-55 ${selectedSection == 'users' && 'bg-slate-400'}`} ><Users color="white" /></button>
+            <button onClick={handleSectionClick('message')} className={`flex h-1/2 focus:animate-pulse aspect-video justify-center items-center rounded-lg  ${selectedSection == 'message' && 'bg-slate-400/55'}`}><MessageSquareText color="white" /></button>
+            <button onClick={handleSectionClick('users')} className={`flex h-1/2 focus:animate-pulse aspect-video justify-center items-center rounded-lg ${selectedSection == 'users' && 'bg-slate-400/50'}`} ><Users color="white" /></button>
         </div>
     </div>
 }

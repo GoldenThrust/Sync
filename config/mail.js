@@ -1,118 +1,102 @@
+// services/mail.service.js
 import { createTransport } from "nodemailer";
+import { TemplateEngine } from "../utils/template-engine.js";
 import { Dev, hostUrl } from "../utils/constants.js";
 import process from "process";
-
 class MailService {
-    constructor() {
-        this.hostUrl = hostUrl;
-        const configOptions = Dev ? {
-            host: '0.0.0.0',
-            port: 1025,
-            secure: false,
-            tls: {
-                rejectUnauthorized: false,
-            },
+  constructor() {
+    this.hostUrl = hostUrl;
+    this.appName = "Sync Meet - Video Conferencing";
+    this.transporter = createTransport(this.getConfig());
+  }
 
-        } : {
-            service: "Gmail",
-            host: process.env.MAIL_HOST,
-            port: process.env.MAIL_PORT,
-            secure: true,
-            auth: {
-                user: process.env.MAIL_USERNAME,
-                pass: process.env.MAIL_PASSWORD,
-            },
-        }
+  getConfig() {
+    return Dev ? {
+      host: '0.0.0.0',
+      port: 1025,
+      secure: false,
+      tls: {
+        rejectUnauthorized: false,
+      },
+    } : {
+      service: "Gmail",
+      host: process.env.MAIL_HOST,
+      port: process.env.MAIL_PORT,
+      secure: true,
+      auth: {
+        user: process.env.MAIL_USERNAME,
+        pass: process.env.MAIL_PASSWORD,
+      },
+    };
+  }
 
-        this.transporter = createTransport(configOptions);
+  async sendEmail(mailOptions) {
+    try {
+      const info = await this.transporter.sendMail({
+        from: `"${this.appName}" <${process.env.MAIL_USERNAME}>`,
+        ...mailOptions
+      });
+      return info;
+    } catch (error) {
+      console.error("Error sending email:", error);
+      throw error;
     }
-    async sendOTP(user, crypto) {
-        const verificationLink = `${this.hostUrl}/api/auth/activate/${crypto}/${user.otp}?mail=true`;
+  }
 
-        const mailTemplate = `
-        <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
-        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 8px;">
-            <h1 style="text-align: center; color: #333;">Welcome to Sync!</h1>
-            <h2 style="color: #555;">Verify Your Email Address</h2>
-            <p style="font-size: 16px; color: #555;">
-            Hello ${user.name || 'User'},<br><br>
-            Thank you for signing up for Sync! Please confirm your email address to complete your registration.
-            </p>
-           <div style="margin: 20px 0; font-size: 18px; font-weight: bold;">
-                <p>Please verify your account using the following OTP:</p>
-                <h2 style="color: #e74c3c;">${user.otp}</h2>
-            </div>
+  async sendOTP(user, crypto) {
+    const verificationLink = `${this.hostUrl}/api/auth/activate/${crypto}/${user.otp}?mail=true`;
+    
+    const html = await TemplateEngine.render('otp-email', {
+      appName: this.appName,
+      user,
+      verificationLink
+    });
 
-         
-            <div style="margin: 20px 0; font-size: 16px; font-style: italic;">
-                <p>Alternatively, you can activate your account by clicking the link below:</p>
-                <a href="${verificationLink}" style="color: #3498db; font-weight: bold; text-decoration: none;">Activate Account</a>
-            </div>
-        <p style="font-size: 14px; color: #999; text-align: center;">
-          This link will expire in 24 hours. If you didn’t request this, please ignore this email.
-        </p>
-      </div>
-    </body>`;
+    return this.sendEmail({
+      to: user.email,
+      subject: "Verify Your Email Address",
+      text: `Please use this OTP to verify your email: ${user.otp}\nOr visit: ${verificationLink}`,
+      html
+    });
+  }
 
-        const mailOptions = {
-            from: process.env.MAIL_USERNAME,
-            to: user.email,
-            subject: "Email Verification",
-            text: `Please verify your email by clicking the following link: ${verificationLink}`,
-            html: mailTemplate
-        };
+  async sendResetPassword(user, crypto) {
+    const resetLink = `${this.hostUrl}/api/auth/reset-password/${crypto}/`;
+    
+    const html = await TemplateEngine.render('reset-password', {
+      appName: this.appName,
+      user,
+      resetLink
+    });
 
-        return new Promise((resolve, reject) => {
-            this.transporter.sendMail(mailOptions, async (err, result) => {
-                if (err) {
-                    return reject(err);
-                }
-                return resolve(result);
-            });
-        });
-    }
+    return this.sendEmail({
+      to: user.email,
+      subject: "Password Reset Request",
+      text: `Click to reset your password: ${resetLink}`,
+      html
+    });
+  }
 
-    async sendResetPasswordEmail(user, crypto) {
-        const resetPasswordLink = `${this.hostUrl}/api/auth/reset-password/${crypto}/`;
+  async sendInstantMeetingInvite(meeting, user) {
+    const meetingLink = `${this.hostUrl}/meet/waiting-room/${meeting.sessionId}`;
+    const inviterName = meeting.createdBy.fullname;
+    const inviteeName = user.fullname;
+    
+    const html = await TemplateEngine.render('instant-meeting-invite', {
+      appName: this.appName,
+      inviterName,
+      inviteeName,
+      meetingLink
+    });
 
-        const mailTemplate = `
-  <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
-    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 8px;">
-      <h1 style="text-align: center; color: #333;">Reset Your Password</h1>
-      <h2 style="color: #555;">Password Reset Request</h2>
-      <p style="font-size: 16px; color: #555;">
-        Hello ${user.name || 'User'},<br><br>
-        We received a request to reset your password. Click the button below to reset your password.
-      </p>
-      <p style="text-align: center;">
-        <a href="${resetPasswordLink}" style="background-color: #ff6f61; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-          Reset Password
-        </a>
-      </p>
-      <p style="font-size: 14px; color: #999; text-align: center;">
-        This link will expire in 1 hour. If you didn’t request this, please ignore this email.
-      </p>
-    </div>
-  </body>`;
-
-        const mailOptions = {
-            from: process.env.MAIL_USERNAME,
-            to: user.email,
-            subject: "Sync: Reset Password",
-            text: `Please reset your password by clicking the following link: ${resetPasswordLink}`,
-            html: mailTemplate
-        };
-
-        return new Promise((resolve, reject) => {
-            this.transporter.sendMail(mailOptions, async (err, result) => {
-                if (err) {
-                    return reject(err);
-                }
-                return resolve(result);
-            });
-        });
-    }
+    return this.sendEmail({
+      to: user.email,
+      subject: `Meeting Invitation: ${meeting.title}`,
+      text: `You have been invited to a meeting: ${meeting.title}\nJoin here: ${meetingLink}`,
+      html
+    });
+  }
 }
 
-const mail = new MailService();
-export default mail;
+const mailService = new MailService();
+export default mailService;

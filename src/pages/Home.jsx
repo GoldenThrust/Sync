@@ -146,7 +146,7 @@ export default function Home() {
             <section className=" px-4 w-full lg:w-1/2 mt-16 mb-24 text-center lg:text-left">
                 <div className="text-4xl md:text-6xl lg:text-8xl font-serif md:text-slate-800 text-shadow">Synchronize for work, play, and Everything in between</div>
                 <div className="my-3 text-slate-600">A single platform for all your communication need</div>
-                <Link to={isAuthenticated ? "/lobby/initiate" : "/auth/signup"} className="block bg-color mx-auto lg:mx-0 w-40 rounded-ss-2xl rounded-ee-2xl p-3 text-md font-medium font-serif text-center text-white" style={{
+                <Link to={isAuthenticated ? "/meet/initiate" : "/auth/signup"} className="block bg-color mx-auto lg:mx-0 w-40 rounded-ss-2xl rounded-ee-2xl p-3 text-md font-medium font-serif text-center text-white" style={{
                 color: '#fff'
             }}>{isAuthenticated ? 'Start Meeting' : 'Get Started'}</Link>
             </section>

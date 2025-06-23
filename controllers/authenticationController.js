@@ -2,7 +2,7 @@ import User from "../models/user.js";
 import { hash, verify } from "argon2";
 import { createToken } from "../middlewares/tokenManager.js";
 import { COOKIE_NAME, domain } from "../utils/constants.js";
-import mail from "../config/mail.js";
+import mailService from "../config/mail.js";
 import { redisDB } from "../config/db.js";
 import { v7 as uuid } from 'uuid';
 import fs from "fs";
@@ -54,7 +54,7 @@ class AuthenticationController {
         try {
             const { fullname, email, password } = req.body;
             let image = '';
-            console.log('registering image')
+
             if (req.file) {
                 image = req.file.path;
             }
@@ -71,11 +71,11 @@ class AuthenticationController {
             const user = { fullname, email, password: hashedPassword, image, otp }
             const crypto = uuid();
 
-            await redisDB.set(`otp_${crypto}`, JSON.stringify(user), 24 * 60 * 60)
+            await redisDB.set(`otp_${crypto}`, JSON.stringify(user), 60 * 60)
 
 
             try {
-                await mail.sendOTP(user, crypto)
+                await mailService.sendOTP(user, crypto)
             } catch (error) {
                 console.error(error);
                 return res.status(500).json({ status: "ERROR", response: "Failed to send activation link" });
@@ -250,7 +250,7 @@ class AuthenticationController {
         await redisDB.set(`reset_${crypto}`, email, 60 * 60);
 
         try {
-            await mail.sendResetPasswordEmail(user, crypto);
+            await mailService.sendResetPasswordEmail(user, crypto);
         } catch (error) {
             console.error(error)
             res.status(500).json({ status: "ERROR", response: "Failed to send password link" });

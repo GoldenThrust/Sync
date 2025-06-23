@@ -7,7 +7,6 @@
     "dev": "vite --host",
     "dev:start": "vite build & nodemon index.js",
     "build": "vite build",
-    "watch:build": "vite build",
     "watch:server": "nodemon index.js",
     "start": "node index.js",
     "lint": "eslint .",

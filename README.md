@@ -140,7 +140,7 @@ sync/
 ### Meetings
 - `GET /api/meet/initiate/:id` - Join or create a meeting room
 - `GET /api/meet/getActiveUsers/:id` - Get active users in a meeting
-- `POST /api/meet/send-invite` - Send meeting invitation
+- `POST /api/meet/send-instant-invite` - Send meeting invitation
 
 ### User Settings
 - `GET /api/settings/get` - Get user settings

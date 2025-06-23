@@ -1,18 +1,58 @@
 import process from "process";
 import Session from "../models/session.js";
+import mailService from "../config/mail.js";
+import User from "../models/user.js";
 
 class MeetController {
     async initiate(req, res) {
         const id = req.params.id;
 
-        const session = await Session.findOne({ sessionId: id });
+        let session = await Session.findOne({ sessionId: id });
         if (!session) {
-            const session = new Session({ sessionId: id });
-            await session.save();
+            session = new Session({ sessionId: id, createdBy: req.user, activeUsers: [req.user._id] });
         }
-        return res.redirect(`${process.env.CLIENT_URL}/lobby/room/` + id)
+        await session.save();
+        return res.redirect(`${process.env.CLIENT_URL}/meet/room/` + id)
     }
 
+    async sendInstantMeetingInvite(req, res) {
+        try {
+            const { emails, sessionId } = req.body;
+
+            if (!emails || !sessionId) {
+                return res.status(400).json({ status: "ERROR", response: "Emails and sessionId are required" });
+            }
+
+            let session = await Session.findOne({ sessionId });
+            if (!session) {
+                session = new Session({ sessionId, createdBy: req.user, activeUsers: [req.user._id] });
+            }
+            await session.save();
+
+            const emailList = emails.split(',').map(email => email.trim()).filter(email => email);
+
+            for (const email of emailList) {
+                const user = await User.findOne({ email });
+                if (!user) continue;
+
+                const alreadyActive = session.activeUsers.find(u => u._id.toString() === user._id.toString());
+                const invitedUser = session.invitedUsers.find(u => u._id.toString() === user._id.toString());
+
+                if (!alreadyActive && !invitedUser) {
+                    session.invitedUsers.push(user);
+                    // await session.invitedUsers.save();
+                    await session.save();
+
+                    await mailService.sendInstantMeetingInvite(session, user);
+                }
+            }
+
+            res.json({ status: "OK", response: "Invite sent successfully" });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ status: "ERROR", response: "Internal server error", error: error.message });
+        }
+    }
 
     async getActiveUsers(req, res) {
         try {
@@ -22,7 +62,7 @@ class MeetController {
                 sessionId: id
             });
 
-            
+
             if (!session) {
                 return res.status(404).json({ status: "OK", response: "Session not found" });
             }

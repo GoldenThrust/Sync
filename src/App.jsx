@@ -80,7 +80,7 @@ const router = createBrowserRouter([
         ]
       },
       {
-        path: 'lobby',
+        path: 'meet',
         element: <NotAuthorized />,
         children: [
           {

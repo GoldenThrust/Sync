@@ -45,7 +45,7 @@ export default function Otp({ setOtpOpen }) {
     };
 
     return (
-        <div className="absolute top-0 left-0 w-screen h-screen flex justify-center items-center z-20 bg-black bg-opacity-50">
+        <div className="absolute top-0 left-0 w-screen h-screen flex justify-center items-center z-20 bg-black/50">
             <form
                 id="otp-form"
                 className="w-96 p-6 rounded-lg border-2 border-blue-500 bg-gray-800 text-center text-white"

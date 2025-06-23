@@ -6,6 +6,16 @@ const SessionSchema = new Schema(
       type: String,
       required: true,
     },
+    title: {
+      type: String,
+      default: 'Instant Meeting',
+      trim: true,
+    },
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
     activeUsers: {
       type: [Schema.Types.Mixed],
       ref: 'User',

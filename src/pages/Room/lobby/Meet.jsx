@@ -95,10 +95,11 @@ export default function Lobby() {
             <div>
                 <ActionTab className="flex justify-center gap-5 items-center h-full" actions={actions} />
             </div>
-            <Link href={`/lobby/initiate/${id}`} className="w-4/5 md:w-1/3 font-bold">
+            <Link href={`/meet/initiate/${id}`} className="w-4/5 md:w-1/3 font-bold">
                 <Button value="Join Chat" className="w-full font-bold" />
             </Link>
-            {settingsOpen && <Settings setSettingsOpen={setSettingsOpen} />}
+            {settingsOpen && <Settings setSettingsOpen={setSettingsOpen} sessionId={id} />}
+            <Settings setSettingsOpen={setSettingsOpen} sessionId={id} />
         </div>
     );
 }
