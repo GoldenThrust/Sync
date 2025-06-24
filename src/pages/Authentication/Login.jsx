@@ -25,7 +25,6 @@ export default function Login() {
 
 
     const signIn = (data) => {
-        console.log(data);
         dispatch(login(data, redirectUrl));
     }
 
