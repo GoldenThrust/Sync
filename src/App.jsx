@@ -11,6 +11,7 @@ import Lobby from "./pages/Room/lobby/Meet";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Error404 from "./pages/404";
+import ErrorPage from "./pages/error";
 import { verify } from "./authentication/authAction";
 import Logout from "./pages/Authentication/Logout";
 
@@ -54,6 +55,10 @@ const router = createBrowserRouter([
         element: <Home />,
       },
       {
+        path: 'error',
+        element: <ErrorPage />
+      },
+      {
         path: 'auth',
         element: <Authorized />,
         children: [
@@ -76,7 +81,7 @@ const router = createBrowserRouter([
           {
             path: 'forgot-password',
             element: <ForgotPassword />
-          },
+          }
         ]
       },
       {

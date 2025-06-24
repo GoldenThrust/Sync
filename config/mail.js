@@ -44,18 +44,18 @@ class MailService {
   }
 
   async sendOTP(user, crypto) {
-    const verificationLink = `${this.hostUrl}/api/auth/activate/${crypto}/${user.otp}?mail=true`;
+    const resetLink = `${this.hostUrl}/api/auth/activate/${crypto}/${user.otp}?mail=true`;
     
     const html = await TemplateEngine.render('otp-email', {
       appName: this.appName,
       user,
-      verificationLink
+      resetLink
     });
 
     return this.sendEmail({
       to: user.email,
       subject: "Verify Your Email Address",
-      text: `Please use this OTP to verify your email: ${user.otp}\nOr visit: ${verificationLink}`,
+      text: `Please use this OTP to verify your email: ${user.otp}\nOr visit: ${resetLink}`,
       html
     });
   }

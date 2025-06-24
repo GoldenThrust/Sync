@@ -91,7 +91,7 @@ export default function Home() {
     return <div id="homepage" className="space-y-10">
         <header className="flex my-5 justify-between">
             <div>
-                <img src={SyncLogo} alt="Sync Logo" className="w-14 drop-shadow-2xl" />
+                <img src={SyncLogo} alt="Sync Logo" className="w-14 drop-shadow-2xl drop-shadow-amber-50/50" />
                 <h1 className="sr-only">Sync</h1>
             </div>
             <nav className="hidden w-8/12 justify-evenly items-center md:flex space-x-4">
@@ -167,7 +167,7 @@ export default function Home() {
                 backgroundColor: '#0a1214b7'
             }}>
                 <section className="space-y-2">
-                    <img src={SyncLogo} alt="Sync Logo" className="w-14 md:m-0 m-auto h-14 drop-shadow-2xl" />
+                    <img src={SyncLogo} alt="Sync Logo" className="w-14 md:m-0 m-auto h-14 drop-shadow-2xl drop-shadow-amber-50/50" />
                     <div className="text-xl font-bold">Video Chat, Reimagined.</div>
                     <div className="text-sm">{`Sync isn’t just another video chat app; it's a space for real connection, seamless interaction, and trusted privacy. Whether you’re catching up with friends, joining study groups, or hosting virtual meetups, Sync brings everyone together effortlessly.`}</div>
                     <div>

@@ -175,7 +175,7 @@ class AuthenticationController {
     async activateAccount(req, res) {
         let otp = req.params.otp;
         let crypto = req.params.crypto;
-        const mail = req.query.mail;
+        const {mail, redirectUrl} = req.query;
 
         if (!otp) return res.status(400).json({ status: "OTP is required" });
         if (!crypto) return res.status(400).json({ status: "crypto is required" });
@@ -184,6 +184,7 @@ class AuthenticationController {
         const credential = JSON.parse(await redisDB.get(`otp_${crypto}`));
 
         if (!credential || credential['otp'] !== otp) {
+            if (mail) return res.redirect(`/error?message=Invalid or expired token&code=401&redirect=/auth/login&redirectText=Login`);
             return res.status(401).json({ status: "ERROR", response: "Invalid or expired token" });
         }
         delete credential['otp'];
@@ -228,7 +229,7 @@ class AuthenticationController {
             credential['token'] = token;
 
 
-            if (mail) return res.redirect('/');
+            if (mail) return res.redirect(redirectUrl ?? '/');
             return res
                 .status(200)
                 .json({ status: "OK", user: credential });
