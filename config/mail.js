@@ -96,6 +96,24 @@ class MailService {
       html
     });
   }
+  async sendGuestInstantMeetingInvite(meeting, email) {
+    const meetingLink = `${this.hostUrl}/auth/signup?redirect=${this.hostUrl}/meet/waiting-room/${meeting.sessionId}&email=${email}`;
+    const inviterName = meeting.createdBy.fullname;
+    // TODO: make it redirect to login page if not logged in with meeting link
+    
+    const html = await TemplateEngine.render('instant-guest-meeting-invite', {
+      appName: this.appName,
+      inviterName,
+      meetingLink
+    });
+
+    return this.sendEmail({
+      to: email,
+      subject: `Meeting Invitation: ${meeting.title}`,
+      text: `You have been invited to a meeting: ${meeting.title}\nJoin here: ${meetingLink}`,
+      html
+    });
+  }
 }
 
 const mailService = new MailService();

@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { accountActivation } from "../../../authentication/authAction";
 
-export default function Otp({ setOtpOpen }) {
+export default function Otp({ setOtpOpen, redirectUrl }) {
     const dispatch = useDispatch();
     const { crypto  } = useSelector((state) => state.auth)
     const { register, handleSubmit, setValue, getValues, trigger } = useForm({
@@ -11,7 +11,7 @@ export default function Otp({ setOtpOpen }) {
     });
 
     const onSubmit = (data) => {
-        dispatch(accountActivation(crypto, Object.values(data).join("")));
+        dispatch(accountActivation(crypto, Object.values(data).join(""), redirectUrl));
     };
 
     const handleInputChange = async (e, index) => {

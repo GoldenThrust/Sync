@@ -11,11 +11,12 @@ export default function Settings({ setSettingsOpen,sessionId }) {
     const SendInvite = useCallback(async (data) => {
         data['sessionId'] = sessionId;
 
-        console.log(data);
         try {
             toast.loading('Sending invite', { id: sessionId });
             await axios.post('/meet/send-instant-invite', data);
             toast.success('Invite sent', { id: sessionId });
+
+            setSettingsOpen(false);
         } catch (err) {
             console.error(err);
             toast.error('Failed to send invite', { id: sessionId });
@@ -23,9 +24,9 @@ export default function Settings({ setSettingsOpen,sessionId }) {
     }, []);
 
 
-    return <div className="absolute top-0 left-0 w-screen h-screen flex justify-center items-center bg-black/50 z-20">
-        <OneFormField FormIcon={<Link />} SubmitIcon={<Send />} name="emails" placeholder="Invite friends" type="text" className="w-4/5 md:w-1/3 " OnSubmit={SendInvite} />
-        <Button onClick={() => { setSettingsOpen(false) }} value={'Close'} />
+    return <div className="absolute top-0 left-0 w-screen h-screen flex justify-center flex-col items-center bg-black/50 gap-5 z-20">
+        <OneFormField FormIcon={<Link />} SubmitIcon={<Send />} name="emails" placeholder="Invite friends" type="text" className="w-4/5 md:w-1/3" OnSubmit={SendInvite} />
+        <Button onClick={() => { setSettingsOpen(false) }} value={'Close'} className="w-4/5 md:w-1/3" />
     </div>
 }
 

@@ -27,7 +27,7 @@ export default function InputField({ data, register }) {
         </label>
     } else {
         return <label className="block relative" htmlFor={data.name}>
-            <input type={data.type} {...register(data.name, { required: data.required })} className={`text-field-style rounded-lg p-3 w-full text-sm outline-none ${data.className || ''}`} onBlur={onInputChange} />
+            <input type={data.type} {...register(data.name, { required: data.required })} className={`text-field-style rounded-lg p-3 w-full text-sm outline-none ${data.className || ''}`} defaultValue={data.value || ''} onBlur={onInputChange} onChange={onInputChange} />
             <div className="absolute top-1/2 -translate-y-1/2 left-2 pointer-events-none" ref={divRef} >{data.placeholder}</div>
         </label>
     }

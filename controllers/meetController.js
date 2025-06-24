@@ -33,18 +33,22 @@ class MeetController {
 
             for (const email of emailList) {
                 const user = await User.findOne({ email });
-                if (!user) continue;
+                if (!user) {
+                    const alreadyActive = session.invitedGuestUsers.find(e => e === email);
+                    if (!alreadyActive) {
+                        await mailService.sendGuestInstantMeetingInvite(session, email);
+                    }
+                } else {
+                    const alreadyActive = session.activeUsers.find(u => u._id.toString() === user._id.toString());
+                    const invitedUser = session.invitedUsers.find(u => u._id.toString() === user._id.toString());
+                    if (!alreadyActive && !invitedUser) {
+                        session.invitedUsers.push(user);
+                        // await session.invitedUsers.save();
 
-                const alreadyActive = session.activeUsers.find(u => u._id.toString() === user._id.toString());
-                const invitedUser = session.invitedUsers.find(u => u._id.toString() === user._id.toString());
-
-                if (!alreadyActive && !invitedUser) {
-                    session.invitedUsers.push(user);
-                    // await session.invitedUsers.save();
-                    await session.save();
-
-                    await mailService.sendInstantMeetingInvite(session, user);
+                        await mailService.sendInstantMeetingInvite(session, user);
+                    }
                 }
+                await session.save();
             }
 
             res.json({ status: "OK", response: "Invite sent successfully" });

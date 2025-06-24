@@ -17,13 +17,14 @@ const SessionSchema = new Schema(
       required: true,
     },
     activeUsers: {
-      type: [Schema.Types.Mixed],
+      type: [Schema.Types.ObjectId],
       ref: 'User',
     },
     invitedUsers: {
       type: [Schema.Types.ObjectId],
       ref: 'User',
     },
+    invitedGuestUsers: [String],
     activeDate: {
       type: Date,
       default: () => new Date(),

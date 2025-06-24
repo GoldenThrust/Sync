@@ -58,7 +58,7 @@ googleAuthRoutes.get('/google/url', (req, res) => {
 });
 
 googleAuthRoutes.get('/google/callback', async (req, res) => {
-    const { code, state, error } = req.query;
+    const { code, state, error, redirect } = req.query;
 
     if (error) {
         return res.status(400).json({ error: 'Google authentication failed' });
@@ -146,6 +146,7 @@ googleAuthRoutes.get('/google/callback', async (req, res) => {
         });
 
 
+        if (redirect) return res.redirect(redirect);
         return res.redirect('/');
     } catch (error) {
         console.error('Error during Google authentication:', error);

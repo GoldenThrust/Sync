@@ -3,7 +3,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 const token = localStorage.getItem("token");
 
-export const login = (form) => async (dispatch) => {
+export const login = (form, redirectUrl) => async (dispatch) => {
   try {
     toast.loading("Signing you in...", { id: "login" })
     dispatch(loginRequest());
@@ -14,6 +14,10 @@ export const login = (form) => async (dispatch) => {
     localStorage.setItem("token", user.token);
     delete user["token"];
     dispatch(loginSuccess(user));
+
+    if (redirectUrl) {
+      window.location.href = redirectUrl;
+    }
   } catch (error) {
     toast.error("Failed to sign in. Please try again.", { id: "login" })
     dispatch(loginFailure(error.response.data.response));
@@ -22,7 +26,7 @@ export const login = (form) => async (dispatch) => {
 
 
 export const logoutAction = () => async (dispatch) => {
-  try {  
+  try {
     dispatch(processingData());
     const res = await axios.get('auth/logout', token ? {
       headers: {
@@ -107,7 +111,7 @@ export const resetPassword = (crypto, form) => async (dispatch) => {
   }
 }
 
-export const accountActivation = (crypto, otp) => async (dispatch) => {
+export const accountActivation = (crypto, otp, redirectUrl) => async (dispatch) => {
   try {
     toast.loading("Verifying OTP......", { id: "otp" })
     dispatch(loginRequest());
@@ -118,6 +122,10 @@ export const accountActivation = (crypto, otp) => async (dispatch) => {
     delete user["token"];
     dispatch(loginSuccess(user));
     toast.success("Account Activated", { id: "otp" })
+    console.log(redirectUrl);
+    if (redirectUrl) {
+      window.location.href = redirectUrl;
+    }
   } catch (error) {
     dispatch(AuthError(error.response.data.response));
     toast.error(error.response.data.response, { id: "otp" })

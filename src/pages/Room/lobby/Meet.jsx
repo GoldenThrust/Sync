@@ -99,7 +99,6 @@ export default function Lobby() {
                 <Button value="Join Chat" className="w-full font-bold" />
             </Link>
             {settingsOpen && <Settings setSettingsOpen={setSettingsOpen} sessionId={id} />}
-            <Settings setSettingsOpen={setSettingsOpen} sessionId={id} />
         </div>
     );
 }
