@@ -99,14 +99,14 @@ const router = createBrowserRouter([
         ]
       },
       {
-        path: "",
+        path: "room",
         element: <NotAuthorized />,
         children: [{
-          path: 'room/:id',
+          path: ':id',
           element: <Room />
         },
         {
-          path: 'room/test/:id',
+          path: 'test/:id',
           element: <Room2 />
         }]
       }

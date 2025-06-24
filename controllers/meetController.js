@@ -12,7 +12,7 @@ class MeetController {
             session = new Session({ sessionId: id, createdBy: req.user, activeUsers: [req.user._id] });
         }
         await session.save();
-        return res.redirect(`${process.env.CLIENT_URL}/meet/room/` + id)
+        return res.redirect(`${process.env.CLIENT_URL}/room/` + id)
     }
 
     async sendInstantMeetingInvite(req, res) {
