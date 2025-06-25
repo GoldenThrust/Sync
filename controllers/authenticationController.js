@@ -8,6 +8,7 @@ import { v7 as uuid } from 'uuid';
 import fs from "fs";
 import createOTP from "../utils/functions.js";
 import Settings from "../models/settings.js";
+import Session from "../models/session.js";
 
 
 
@@ -175,7 +176,7 @@ class AuthenticationController {
     async activateAccount(req, res) {
         let otp = req.params.otp;
         let crypto = req.params.crypto;
-        const {mail, redirectUrl} = req.query;
+        const { mail, redirect } = req.query;
 
         if (!otp) return res.status(400).json({ status: "OTP is required" });
         if (!crypto) return res.status(400).json({ status: "crypto is required" });
@@ -184,7 +185,7 @@ class AuthenticationController {
         const credential = JSON.parse(await redisDB.get(`otp_${crypto}`));
 
         if (!credential || credential['otp'] !== otp) {
-            if (mail)     return res.redirect(`/error?message=Invalid or expired token&code=401&redirect=/auth/login&redirectText=Login`);
+            if (mail) return res.redirect(`/error?message=Invalid or expired token&code=401&redirect=/auth/login&redirectText=Login`);
             return res.status(401).json({ status: "ERROR", response: "Invalid or expired token" });
         }
         delete credential['otp'];
@@ -200,6 +201,9 @@ class AuthenticationController {
             if (!user) {
                 return res.status(500).json({ status: "ERROR", response: "User not found" });
             }
+
+
+
 
             res.clearCookie(COOKIE_NAME, {
                 secure: true,
@@ -228,8 +232,26 @@ class AuthenticationController {
             delete credential['password'];
             credential['token'] = token;
 
+            if (redirect) {
+                const sessionId = redirect.split('/').pop();
 
-            if (mail) return res.redirect(redirectUrl ?? '/');
+                if (sessionId) {
+                    const session = await Session.findOne({ sessionId });
+                    if (session) {
+                        const invitedGuestUser = session.invitedGuestUsers.includes(user.email);
+                        const invitedUsers = session.invitedUsers.includes(user);
+
+                        if (invitedGuestUser && !invitedUsers) {
+                            session.activeUsers.push(user);
+                            await session.save();
+                        }
+                    } else {
+                        return res.status(404).json({ error: 'Session not found' });
+                    }
+                }
+            }
+
+            if (mail) return res.redirect(redirect ?? '/');
             return res
                 .status(200)
                 .json({ status: "OK", user: credential });

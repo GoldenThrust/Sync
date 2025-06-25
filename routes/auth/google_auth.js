@@ -8,6 +8,7 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { COOKIE_NAME, domain } from '../../utils/constants.js';
 import Settings from '../../models/settings.js';
+import Session from '../../models/session.js';
 
 const googleAuthRoutes = Router();
 const oauth2Client = new google.auth.OAuth2(
@@ -62,13 +63,13 @@ googleAuthRoutes.get('/google/url', (req, res) => {
 
 googleAuthRoutes.get('/google/callback', async (req, res) => {
     const { code, state, error } = req.query;
-    
+
     if (error) {
         return res.status(400).json({ error: 'Google authentication failed' });
     } else if (!req.session.state || state !== req.session.state) {
         return res.status(400).json({ error: 'State mismatch. Possible CSRF attack' });
     }
-    
+
     let redirect;
     try {
         // If state contains encoded redirect info, extract it
@@ -79,7 +80,7 @@ googleAuthRoutes.get('/google/callback', async (req, res) => {
     } catch (e) {
         // If parsing fails, continue without redirect
         console.error('Error parsing state:', e);
-    }    try {
+    } try {
         const { tokens } = await oauth2Client.getToken(code);
         oauth2Client.setCredentials(tokens);
 
@@ -162,9 +163,24 @@ googleAuthRoutes.get('/google/callback', async (req, res) => {
             signed: true,
         });
 
+        const sessionId = redirect.split('/').pop();
+        if (sessionId) {
+            const session = await Session.findOne({ sessionId });
 
-        if (redirect) return res.redirect(redirect);
-        return res.redirect('/');
+            if (session) {
+                const invitedGuestUser = session.invitedGuestUsers.includes(user.email);
+                const invitedUsers = session.invitedUsers.includes(user);
+                if (invitedGuestUser && !invitedUsers) {
+                    session.activeUsers.push(user);
+                    await session.save();
+                }
+            } else {
+                return res.status(404).json({ error: 'Session not found' });
+            }
+
+            if (redirect) return res.redirect(redirect);
+            return res.redirect('/');
+        }
     } catch (error) {
         console.error('Error during Google authentication:', error);
         return res.status(500).json({ error: 'Authentication failed' });

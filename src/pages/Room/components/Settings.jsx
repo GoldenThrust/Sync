@@ -24,7 +24,7 @@ export default function Settings({ setSettingsOpen,sessionId }) {
     }, []);
 
 
-    return <div className="absolute top-0 left-0 w-screen h-screen flex justify-center flex-col items-center bg-black/50 gap-5 z-20">
+    return <div className="absolute top-0 left-0 w-screen h-screen flex justify-center flex-col items-center bg-black/90 gap-5 z-20">
         <OneFormField FormIcon={<Link />} SubmitIcon={<Send />} name="emails" placeholder="Invite friends" type="text" className="w-4/5 md:w-1/3" OnSubmit={SendInvite} />
         <Button onClick={() => { setSettingsOpen(false) }} value={'Close'} className="w-4/5 md:w-1/3" />
     </div>

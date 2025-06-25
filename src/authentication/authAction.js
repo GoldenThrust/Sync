@@ -119,14 +119,14 @@ export const accountActivation = (crypto, otp, redirectUrl) => async (dispatch) 
   try {
     toast.loading("Verifying OTP......", { id: "otp" })
     dispatch(loginRequest());
-    const res = await axios.get(`auth/activate/${crypto}/${otp}`);
+    const res = await axios.get(`auth/activate/${crypto}/${otp}${redirectUrl ? `?redirect=${encodeURIComponent(redirectUrl)}` : ''}`);
     const user = res.data.user;
     localStorage.setItem("user", JSON.stringify(user));
     localStorage.setItem("token", user.token);
     delete user["token"];
     dispatch(loginSuccess(user));
     toast.success("Account Activated", { id: "otp" })
-    console.log(redirectUrl);
+
     if (redirectUrl) {
       window.location.href = redirectUrl;
     }
