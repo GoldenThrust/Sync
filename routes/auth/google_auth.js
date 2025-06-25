@@ -7,6 +7,7 @@ import { RedisStore } from 'connect-redis';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { COOKIE_NAME, domain } from '../../utils/constants.js';
+import Settings from '../../models/settings.js';
 
 const googleAuthRoutes = Router();
 const oauth2Client = new google.auth.OAuth2(
@@ -35,7 +36,7 @@ googleAuthRoutes.use(session(sessionConfig));
 
 const state = crypto.randomBytes(32).toString('hex');
 
-function getGoogleAuthURL() {
+function getGoogleAuthURL(state) {
     const scopes = [
         'https://www.googleapis.com/auth/userinfo.profile',
         'https://www.googleapis.com/auth/userinfo.email',
@@ -53,20 +54,32 @@ function getGoogleAuthURL() {
 
 // Google OAuth routes
 googleAuthRoutes.get('/google/url', (req, res) => {
-    req.session.state = state;
-    return res.json({ url: getGoogleAuthURL() });
+    const { redirect } = req.query;
+    const localState = redirect ? Buffer.from(JSON.stringify({ redirect, state })).toString('hex') : state;
+    req.session.state = localState;
+    return res.json({ url: getGoogleAuthURL(localState) });
 });
 
 googleAuthRoutes.get('/google/callback', async (req, res) => {
-    const { code, state, error, redirect } = req.query;
-
+    const { code, state, error } = req.query;
+    
     if (error) {
         return res.status(400).json({ error: 'Google authentication failed' });
-    } else if (state !== req.session.state) {
+    } else if (!req.session.state || state !== req.session.state) {
         return res.status(400).json({ error: 'State mismatch. Possible CSRF attack' });
     }
-
+    
+    let redirect;
     try {
+        // If state contains encoded redirect info, extract it
+        if (state && state.length > 64) {
+            const decodedState = JSON.parse(Buffer.from(state, 'hex').toString());
+            redirect = decodedState.redirect;
+        }
+    } catch (e) {
+        // If parsing fails, continue without redirect
+        console.error('Error parsing state:', e);
+    }    try {
         const { tokens } = await oauth2Client.getToken(code);
         oauth2Client.setCredentials(tokens);
 
@@ -95,9 +108,13 @@ googleAuthRoutes.get('/google/callback', async (req, res) => {
                 active: true,
                 privacypolicy: true
             });
+            await user.save();
+
+            const settings = new Settings({ user });
+            await settings.save();
             created = true;
+            await user.save();
         }
-        await user.save();
 
         // Update user data if it exists but some fields changed
         if (!created) {

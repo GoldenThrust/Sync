@@ -35,10 +35,14 @@ export const logoutAction = () => async (dispatch) => {
     } : {});
     const user = res.data.response;
     localStorage.removeItem("user");
+    localStorage.removeItem("token"); // Also remove the token from localStorage
     dispatch(logout(user));
     toast.success("Successfully logged out!");
   } catch (error) {
-    dispatch(AuthError(error.response.data.response));
+    // Improved error handling
+    const errorMessage = error.response?.data?.response || "Logout failed";
+    dispatch(AuthError(errorMessage));
+    toast.error("Logout failed. Please try again.");
   }
 };
 

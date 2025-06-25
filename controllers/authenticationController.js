@@ -184,7 +184,7 @@ class AuthenticationController {
         const credential = JSON.parse(await redisDB.get(`otp_${crypto}`));
 
         if (!credential || credential['otp'] !== otp) {
-            if (mail) return res.redirect(`/error?message=Invalid or expired token&code=401&redirect=/auth/login&redirectText=Login`);
+            if (mail)     return res.redirect(`/error?message=Invalid or expired token&code=401&redirect=/auth/login&redirectText=Login`);
             return res.status(401).json({ status: "ERROR", response: "Invalid or expired token" });
         }
         delete credential['otp'];
