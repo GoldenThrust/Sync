@@ -27,4 +27,7 @@ dist-ssr
 .env.production
 test-server.js
 uploads/
-.codegpt
+.codegpt/
+
+cypress/e2e/1-getting-started
+cypress/e2e/2-advanced-examples

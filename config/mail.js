@@ -114,6 +114,72 @@ class MailService {
       html
     });
   }
+
+  async sendScheduledMeetingInvite(meeting, user) {
+    const meetingLink = `${this.hostUrl}/meet/waiting-room/${meeting.sessionId}`;
+    const inviterName = meeting.createdBy.fullname;
+    const inviteeName = user.fullname;
+    const logoUrl = `${this.hostUrl}/sync-logo.svg`;
+    
+    // Format the meeting date
+    const meetingDate = new Date(meeting.activeDate);
+    const formattedDate = meetingDate.toLocaleString();
+    
+    // Calculate duration in hours and minutes
+    const durationHours = Math.floor(meeting.duration / (60 * 60 * 1000));
+    const durationMinutes = Math.floor((meeting.duration % (60 * 60 * 1000)) / (60 * 1000));
+    const formattedDuration = `${durationHours > 0 ? durationHours + ' hours' : ''} ${durationMinutes > 0 ? durationMinutes + ' minutes' : ''}`.trim();
+    
+    const html = await TemplateEngine.render('scheduled-meeting-invite', {
+      appName: this.appName,
+      logoUrl,
+      inviterName,
+      inviteeName,
+      meetingLink,
+      meetingTitle: meeting.title,
+      meetingDate: formattedDate,
+      meetingDuration: formattedDuration
+    });
+
+    return this.sendEmail({
+      to: user.email,
+      subject: `Scheduled Meeting: ${meeting.title}`,
+      text: `You have been invited to a scheduled meeting: ${meeting.title}\nDate: ${formattedDate}\nDuration: ${formattedDuration}\nJoin here: ${meetingLink}`,
+      html
+    });
+  }
+
+  async sendScheduledGuestMeetingInvite(meeting, email) {
+    const meetingLink = `${this.hostUrl}/auth/signup?redirect=${this.hostUrl}/meet/waiting-room/${meeting.sessionId}&email=${email}`;
+    const inviterName = meeting.createdBy.fullname;
+    const logoUrl = `${this.hostUrl}/sync-logo.svg`;
+    
+    // Format the meeting date
+    const meetingDate = new Date(meeting.activeDate);
+    const formattedDate = meetingDate.toLocaleString();
+    
+    // Calculate duration in hours and minutes
+    const durationHours = Math.floor(meeting.duration / (60 * 60 * 1000));
+    const durationMinutes = Math.floor((meeting.duration % (60 * 60 * 1000)) / (60 * 1000));
+    const formattedDuration = `${durationHours > 0 ? durationHours + ' hours' : ''} ${durationMinutes > 0 ? durationMinutes + ' minutes' : ''}`.trim();
+    
+    const html = await TemplateEngine.render('scheduled-guest-meeting-invite', {
+      appName: this.appName,
+      logoUrl,
+      inviterName,
+      meetingLink,
+      meetingTitle: meeting.title,
+      meetingDate: formattedDate,
+      meetingDuration: formattedDuration
+    });
+
+    return this.sendEmail({
+      to: email,
+      subject: `Scheduled Meeting: ${meeting.title}`,
+      text: `You have been invited to a scheduled meeting: ${meeting.title}\nDate: ${formattedDate}\nDuration: ${formattedDuration}\nJoin here: ${meetingLink}`,
+      html
+    });
+  }
 }
 
 const mailService = new MailService();

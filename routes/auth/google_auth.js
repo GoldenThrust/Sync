@@ -163,24 +163,26 @@ googleAuthRoutes.get('/google/callback', async (req, res) => {
             signed: true,
         });
 
-        const sessionId = redirect.split('/').pop();
-        if (sessionId) {
-            const session = await Session.findOne({ sessionId });
+        if (redirect) {
+            const sessionId = redirect.split('/').pop();
+            if (sessionId) {
+                const session = await Session.findOne({ sessionId });
 
-            if (session) {
-                const invitedGuestUser = session.invitedGuestUsers.includes(user.email);
-                const invitedUsers = session.invitedUsers.includes(user);
-                if (invitedGuestUser && !invitedUsers) {
-                    session.activeUsers.push(user);
-                    await session.save();
+                if (session) {
+                    const invitedGuestUser = session.invitedGuestUsers.includes(user.email);
+                    const invitedUsers = session.invitedUsers.includes(user);
+                    if (invitedGuestUser && !invitedUsers) {
+                        session.activeUsers.push(user);
+                        await session.save();
+                    }
+                } else {
+                    return res.status(404).json({ error: 'Session not found' });
                 }
-            } else {
-                return res.status(404).json({ error: 'Session not found' });
-            }
 
-            if (redirect) return res.redirect(redirect);
-            return res.redirect('/');
+                return res.redirect(redirect);
+            }
         }
+        return res.redirect('/');
     } catch (error) {
         console.error('Error during Google authentication:', error);
         return res.status(500).json({ error: 'Authentication failed' });

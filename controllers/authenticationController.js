@@ -103,6 +103,7 @@ class AuthenticationController {
                 return res.status(403).json({ status: "ERROR", response: "Account is not active" })
             }
 
+            if (!user.password) return await authContoller.forgotPassword(req, res);
             const isPasswordCorrect = await verify(user.password, password);
             if (!isPasswordCorrect) {
                 return res.status(401).json({ status: "ERROR", response: "Password is incorrect" })
@@ -273,10 +274,10 @@ class AuthenticationController {
         await redisDB.set(`reset_${crypto}`, email, 60 * 60);
 
         try {
-            await mailService.sendResetPasswordEmail(user, crypto);
+            await mailService.sendResetPassword(user, crypto);
         } catch (error) {
             console.error(error)
-            res.status(500).json({ status: "ERROR", response: "Failed to send password link" });
+            res.status(500).json({ status: "ERROR", response: "Failed to send reset password link" });
         }
 
         res.json({ status: "OK", response: "We've sent a password reset link to your email. Please check your inbox to reset your password." });
