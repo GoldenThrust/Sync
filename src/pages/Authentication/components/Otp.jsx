@@ -5,13 +5,13 @@ import { accountActivation } from "../../../authentication/authAction";
 
 export default function Otp({ setOtpOpen, redirectUrl }) {
     const dispatch = useDispatch();
-    const { crypto  } = useSelector((state) => state.auth)
+    const { token } = useSelector((state) => state.auth)
     const { register, handleSubmit, setValue, getValues, trigger } = useForm({
         defaultValues: { otp1: "", otp2: "", otp3: "", otp4: "" },
     });
 
     const onSubmit = (data) => {
-        dispatch(accountActivation(crypto, Object.values(data).join(""), redirectUrl));
+        dispatch(accountActivation(token, Object.values(data).join(""), redirectUrl));
     };
 
     const handleInputChange = async (e, index) => {

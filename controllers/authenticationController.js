@@ -70,13 +70,13 @@ class AuthenticationController {
             const otp = createOTP();
 
             const user = { fullname, email, password: hashedPassword, image, otp }
-            const crypto = uuid();
+            const token = uuid();
 
-            await redisDB.set(`otp_${crypto}`, JSON.stringify(user), 60 * 60)
+            await redisDB.set(`otp_${token}`, JSON.stringify(user), 60 * 60)
 
 
             try {
-                await mailService.sendOTP(user, crypto)
+                await mailService.sendOTP(user, token)
             } catch (error) {
                 console.error(error);
                 return res.status(500).json({ status: "ERROR", response: "Failed to send activation link" });
@@ -84,7 +84,7 @@ class AuthenticationController {
 
             return res
                 .status(201)
-                .json({ status: "OK", response: "We've sent an otp to your email. Please check your inbox to activate your account.", crypto });
+                .json({ status: "OK", response: "We've sent an otp to your email. Please check your inbox to activate your account.", token });
         } catch (error) {
             console.error(error);
             return res.status(500).json({ status: "ERROR", response: "Internal Server Error" });
@@ -95,6 +95,7 @@ class AuthenticationController {
         try {
             const { email, password } = req.body;
             const user = await User.findOne({ email });
+
             if (!user) {
                 return res.status(403).json({ status: "ERROR", response: "Account not registered" });
             }
@@ -175,15 +176,14 @@ class AuthenticationController {
     }
 
     async activateAccount(req, res) {
-        let otp = req.params.otp;
-        let crypto = req.params.crypto;
+        const {token, otp} = req.params;
         const { mail, redirect } = req.query;
 
         if (!otp) return res.status(400).json({ status: "OTP is required" });
-        if (!crypto) return res.status(400).json({ status: "crypto is required" });
+        if (!token) return res.status(400).json({ status: "token is required" });
 
 
-        const credential = JSON.parse(await redisDB.get(`otp_${crypto}`));
+        const credential = JSON.parse(await redisDB.get(`otp_${token}`));
 
         if (!credential || credential['otp'] !== otp) {
             if (mail) return res.redirect(`/error?message=Invalid or expired token&code=401&redirect=/auth/login&redirectText=Login`);
@@ -229,7 +229,7 @@ class AuthenticationController {
                 signed: true,
             });
 
-            await redisDB.del(`otp_${crypto}`);
+            await redisDB.del(`otp_${token}`);
             delete credential['password'];
             credential['token'] = token;
 
@@ -264,30 +264,40 @@ class AuthenticationController {
 
 
     async forgotPassword(req, res) {
-        const email = req.body.email;
+        const {email} = req.body;
 
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(401).json({ status: "ERROR", response: "User not registered" });
         }
 
-        await redisDB.set(`reset_${crypto}`, email, 60 * 60);
+        const token = uuid()
+
+        await redisDB.set(`reset_${token}`, email, 60 * 60);
 
         try {
-            await mailService.sendResetPassword(user, crypto);
+            await mailService.sendResetPassword(user, token);
         } catch (error) {
             console.error(error)
-            res.status(500).json({ status: "ERROR", response: "Failed to send reset password link" });
+            res.status(500).json({
+                status: "ERROR",
+                info: "password reset",
+                response: "Failed to send reset password link"
+            });
         }
 
-        res.json({ status: "OK", response: "We've sent a password reset link to your email. Please check your inbox to reset your password." });
+        res.json({
+            status: "OK",
+            info: "password reset",
+            response: "We've sent a password reset link to your email. Please check your inbox to reset your password."
+        });
     }
 
 
     async resetPassword(req, res) {
         const { password } = req.body;
-        const crypto = req.params.crypto;
-        const email = await redisDB.get(`reset_${crypto}`);
+        const token = req.params.token;
+        const email = await redisDB.get(`reset_${token}`);
         if (!email) {
             return res.status(401).json({ status: "ERROR", response: "Invalid or expired token" });
         }
@@ -299,7 +309,7 @@ class AuthenticationController {
                 { new: true }
             );
 
-            await redisDB.del(`reset_${crypto}`);
+            await redisDB.del(`reset_${token}`);
             res.status(201).json({ status: "OK", response: "Password reset successfully" })
         } catch (err) {
             console.error(err);

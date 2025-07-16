@@ -12,10 +12,6 @@ export default function ForgotPassword() {
         { name: 'email', type: "email", placeholder: "Email Address" },
     ]
 
-    const forgotPassword = () => {
-
-    }
-
 
     return (
         <AuthBackground>

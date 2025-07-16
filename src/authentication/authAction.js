@@ -8,6 +8,10 @@ export const login = (form, redirectUrl) => async (dispatch) => {
     toast.loading("Signing you in...", { id: "login" })
     dispatch(loginRequest());
     const res = await axios.post('auth/login', form);
+    if (res.data.info === "password reset") {
+      toast.error(`Please reset your password before logging in. ${res.data.response}`, { id: "login" });
+      return;
+    }
     const user = res.data.response;
     toast.success("Successfully signed in!", { id: "login" })
     localStorage.setItem("user", JSON.stringify(user));
@@ -101,11 +105,11 @@ export const forgotPassword = (form) => async (dispatch) => {
 }
 
 
-export const resetPassword = (crypto, form) => async (dispatch) => {
+export const resetPassword = (token, form) => async (dispatch) => {
   try {
     toast.loading("Updating your password...", { id: "newPassword" })
     dispatch(processingData());
-    const res = await axios.post(`auth/reset-password/${crypto}`, form);
+    const res = await axios.post(`auth/reset-password/${token}`, form);
     const response = res.data.response;
     toast.success("Password updated successfully!", { id: "newPassword" })
     dispatch(AuthResponse(response));
@@ -115,11 +119,11 @@ export const resetPassword = (crypto, form) => async (dispatch) => {
   }
 }
 
-export const accountActivation = (crypto, otp, redirectUrl) => async (dispatch) => {
+export const accountActivation = (token, otp, redirectUrl) => async (dispatch) => {
   try {
     toast.loading("Verifying OTP......", { id: "otp" })
     dispatch(loginRequest());
-    const res = await axios.get(`auth/activate/${crypto}/${otp}${redirectUrl ? `?redirect=${encodeURIComponent(redirectUrl)}` : ''}`);
+    const res = await axios.get(`auth/activate/${token}/${otp}${redirectUrl ? `?redirect=${encodeURIComponent(redirectUrl)}` : ''}`);
     const user = res.data.user;
     localStorage.setItem("user", JSON.stringify(user));
     localStorage.setItem("token", user.token);

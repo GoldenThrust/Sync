@@ -43,8 +43,8 @@ class MailService {
     }
   }
 
-  async sendOTP(user, crypto) {
-    const resetLink = `${this.hostUrl}/api/auth/activate/${crypto}/${user.otp}?mail=true`;
+  async sendOTP(user, token) {
+    const resetLink = `${this.hostUrl}/api/auth/activate/${token}/${user.otp}?mail=true`;
     
     const html = await TemplateEngine.render('otp-email', {
       appName: this.appName,
@@ -60,8 +60,8 @@ class MailService {
     });
   }
 
-  async sendResetPassword(user, crypto) {
-    const resetLink = `${this.hostUrl}/api/auth/reset-password/${crypto}/`;
+  async sendResetPassword(user, token) {
+    const resetLink = `${this.hostUrl}/auth/reset-password/${token}/`;
     
     const html = await TemplateEngine.render('reset-password', {
       appName: this.appName,

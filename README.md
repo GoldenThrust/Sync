@@ -43,7 +43,7 @@ CLIENT_URL=http://localhost:5173
 
 # Database Configuration
 MONGODB_URI=mongodb://localhost:27017/sync
-REDIS_URI=redis://localhost:6379
+REDIS_URL=redis://localhost:6379
 
 # Authentication
 JWT_SECRET=your_jwt_secret_key

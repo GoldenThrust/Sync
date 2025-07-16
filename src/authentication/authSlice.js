@@ -6,7 +6,7 @@ const initialState = {
   loading: false,
   error: null,
   response: null,
-  crypto: null,
+  token: null,
 };
 
 
@@ -46,7 +46,7 @@ const authSlice = createSlice({
     AuthResponse: (state, action) => {
       state.loading = false;
       state.response = action.payload.response;
-      state.crypto = action.payload.crypto;
+      state.token = action.payload.token;
       state.error = null;
     }
   }

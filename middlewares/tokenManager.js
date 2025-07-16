@@ -25,13 +25,14 @@ export async function verifyToken(req, res, next) {
   if (!token || token.trim() === "") {
     return res.status(401).json({ response: "Token Not Received" });
   }
+
   try {
     const jwtSecret = process.env.JWT_SECRET;
     const jwtData = jwt.verify(token, jwtSecret);
     res.jwt = jwtData;
     return next();
-  } catch (error) {
-    console.error("Token verification error:", error);
+  } catch (_) {
+    console.error("Token verification error");
     return res.status(401).json({ response: "Token Expired or Invalid" });
   }
 }
