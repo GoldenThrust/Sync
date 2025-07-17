@@ -9,7 +9,7 @@ export const login = (form, redirectUrl) => async (dispatch) => {
     dispatch(loginRequest());
     const res = await axios.post('auth/login', form);
     if (res.data.info === "password reset") {
-      toast.error(`Please reset your password before logging in. ${res.data.response}`, { id: "login" });
+      toast.error(`Please reset your password before logging in. ${res.data.response}`, { id: "login", duration: 5000 });
       return;
     }
     const user = res.data.response;

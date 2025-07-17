@@ -48,6 +48,7 @@ const allowUrl = [
 // });
 const optionalAuthRoutes = [
   /^\/$/,
+  /^\/sync.svg/,
   /^\/(assets|error)\//,
   /^\/auth\/(?!verify|update-profile|logout).*$/,
   /^\/api\/auth\/(?!verify|update-profile|logout).*$/,

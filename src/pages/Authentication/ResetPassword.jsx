@@ -2,9 +2,12 @@ import { useForm } from "react-hook-form";
 import AuthBackground from "../../components/ui/AuthBackground";
 import FormField from "../../components/ui/form/FormField";
 import Button from "../../components/ui/form/Button";
+import { useParams } from "react-router-dom";
+import { resetPassword } from "../../authentication/authAction";
 
 export default function ResetPassword() {
     const hook = useForm();
+    const { token } = useParams();
     const { handleSubmit } = hook;
 
     const form = [
@@ -12,14 +15,14 @@ export default function ResetPassword() {
         { name: '_c', type: "password", placeholder: "Confirm Password", required: true },
     ]
 
-    const forgotPassword = () => {
-
+    const onSubmit = (data) => {
+        dispatch(resetPassword(token, data));
     }
 
 
     return (
         <AuthBackground>
-            <form onSubmit={handleSubmit(forgotPassword)} className="flex flex-col justify-center gap-5 h-screen w-3/4 md:w-1/2 items-center">
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col justify-center gap-5 h-screen w-3/4 md:w-1/2 items-center">
                 <legend className="text-4xl font-mono font-bold">Reset Password</legend>
                 <FormField data={form} hook={hook} className="w-full" />
 
