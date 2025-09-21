@@ -17,12 +17,14 @@ export async function verifyToken(req, res, next) {
   let token = null;
 
   if (authHeader && authHeader.startsWith('Bearer ')) {
-    token = authHeader.substring(7); // Remove 'Bearer ' prefix
+    token = authHeader.substring(7);
   } else {
     token = req.signedCookies[COOKIE_NAME];
   }
 
   if (!token || token.trim() === "") {
+
+    console.log('Request URL:', req.url);
     return res.status(401).json({ response: "Token Not Received" });
   }
 

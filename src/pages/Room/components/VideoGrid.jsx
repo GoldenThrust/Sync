@@ -3,8 +3,8 @@ import PropTypes from "prop-types"
 
 export default function VideoGrid({ videos, localVideo, className = '', style }) {
 
-    return <div className={`relative ${className}`} style={style} >
-        <div className={`overflow-hidden rounded-lg shadow-slate-900 shadow-lg object-cover ${Object.entries(videos).length ? 'absolute bottom-28 right-5 w-1/3 sm:w-1/6 rounded-2xl z-10' : 'w-screen h-screen'} bg-slate-900`} id='localhost'>
+    return <div className={`${className}`} style={style} >
+        <div className={`overflow-hidden rounded-lg flex items-center justify-center shadow-slate-900 shadow-lg object-cover ${Object.entries(videos).length ? 'absolute bottom-28 right-5 w-1/3 sm:w-1/6 rounded-2xl z-10' : 'w-screen h-screen'} bg-slate-900`} id='localhost'>
             {localVideo}
         </div>
 

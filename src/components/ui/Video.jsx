@@ -26,9 +26,7 @@ export default function Video({ user, stream, muted = false, className }) {
         }
     }, [stream]);
 
-    return <div className={className} key={`video-${stream.id}`}>
-        <video ref={videoRef} autoPlay playsInline muted={muted} id={user.id} />
-    </div>;
+    return <video ref={videoRef} autoPlay playsInline muted={muted} id={user.id} className={className} key={`video-${stream.id}`} />
 }
 
 Video.propTypes = {
