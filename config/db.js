@@ -14,7 +14,6 @@ class DB {
         autoIndex: true,
         appName: "sync",
         dbName: process.env.REDIS_DB_NAME || "sync",
-
       });
       console.log("Successfully connected to MongoDB!");
 

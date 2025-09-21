@@ -112,6 +112,7 @@ export const resetPassword = (token, form) => async (dispatch) => {
     const res = await axios.post(`auth/reset-password/${token}`, form);
     const response = res.data.response;
     toast.success("Password updated successfully!", { id: "newPassword" })
+    window.location.href = '/auth/login';
     dispatch(AuthResponse(response));
   } catch (error) {
     toast.error("Failed to update password. Please try again.", { id: "newPassword" })

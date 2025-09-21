@@ -4,10 +4,12 @@ import FormField from "../../components/ui/form/FormField";
 import Button from "../../components/ui/form/Button";
 import { useParams } from "react-router-dom";
 import { resetPassword } from "../../authentication/authAction";
+import { useDispatch } from "react-redux";
 
 export default function ResetPassword() {
     const hook = useForm();
     const { token } = useParams();
+    const dispatch = useDispatch();
     const { handleSubmit } = hook;
 
     const form = [

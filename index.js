@@ -118,7 +118,7 @@ function initializeSocketIO(server) {
   const io = new Server(server, {
     adapter: createAdapter(redisDB.client),
     cors: {
-      origin: [allowUrl],
+      origin: [...allowUrl],
       credentials: true
     },
 

@@ -5,6 +5,6 @@ export default defineConfig({
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
-    baseUrl: 'https://localhost',
+    baseUrl: 'https://192.168.0.3',
   },
 });

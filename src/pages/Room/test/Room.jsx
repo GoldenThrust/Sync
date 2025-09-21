@@ -22,8 +22,6 @@ export default function Room() {
         query: { id },
     }));
 
-    console.log()
-
     useEffect(() => {
         const socket = socketRef.current;
         let localStream;
