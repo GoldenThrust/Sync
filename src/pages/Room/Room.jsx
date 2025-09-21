@@ -7,7 +7,6 @@ import { getSettings, updateSettings } from "../../settings/settingsAction";
 import { io } from "socket.io-client";
 import { baseUrl } from "../../utils/constant";
 import { addPeer, createPeer } from "../../utils/peer";
-import { isMobile } from "react-device-detect";
 // import Header from "./components/Header";
 import VideoGrid from "./components/VideoGrid";
 import Footer from "./components/Footer";
@@ -15,6 +14,8 @@ import Footer from "./components/Footer";
 import { AudioLines, PhoneOff, SwitchCamera, VideoIcon } from "lucide-react";
 import { endCall, toggleAudio, toggleCamera, toggleFacingMode } from "../../utils/actions";
 import { toggleTrack } from "../../utils/mediaSettings";
+import { isMobile } from "react-device-detect";
+
 
 export default function Lobby() {
     const { id } = useParams();
@@ -48,6 +49,18 @@ export default function Lobby() {
                 setVideoStream(
                     <Video stream={localStream} user={{ ...settings.user, id: socketRef.current.id }} muted className={`${settings.settings.video.facingMode === 'user' ? '-scale-x-100' : 'scale-x-100'} w-full h-full`} />
                 );
+                
+                // create 5 mock remote videos for testing
+                const array = [1];
+                for (let index = 0; index < array.length; index++) {
+                    const element = array[index];
+                    setRemoteVideos((prev) => {
+                        return {
+                            ...prev,
+                            [`user-${element}`]: <Video stream={localStream} facingMode={settings.video?.facingMode} key={`video-user-${element}`} user={{ email: `user-${element}` }} />
+                        }
+                    });
+                }
                 socketRef.current.emit('get-active-users', id)
             } catch (error) {
                 console.error("Error initializing media stream:", error.message);
@@ -64,7 +77,7 @@ export default function Lobby() {
                 setRemoteVideos((prev) => {
                     return {
                         ...prev,
-                        [user.email]: <Video stream={stream} className={`overflow-hidden ${!isMobile || settings.video?.facingMode === "user" ? "-scale-x-100" : "scale-x-100"}`} key={`video-${stream.id}`} user={user} />
+                        [user.email]: <Video stream={stream} facingMode={settings.video?.facingMode} key={`video-${stream.id}`} user={user} />
                     }
                 })
             });
@@ -81,7 +94,7 @@ export default function Lobby() {
                 setRemoteVideos((prev) => {
                     return {
                         ...prev,
-                        [user.email]: <Video stream={stream} className={`overflow-hidden ${!isMobile || settings.video?.facingMode === "user" ? "-scale-x-100" : "scale-x-100"}`} key={`video-${stream.id}`} user={user} />
+                        [user.email]: <Video stream={stream} facingMode={settings.video?.facingMode} key={`video-${stream.id}`} user={user} />
                     }
                 })
             });
@@ -189,7 +202,6 @@ export default function Lobby() {
             toggleTrack(mediaStream, "video", settings.settings.enabledVideo);
         }
     }, [mediaStream, settings, dispatch, navigate]);
-
 
     return (
         <div className="h-screen w-screen" id="room">

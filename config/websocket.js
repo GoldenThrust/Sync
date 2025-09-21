@@ -41,11 +41,6 @@ class WebSocketManager {
                     { $pull: { activeUsers: { email: socket.user.email } } },
                 );
 
-                await Session.findOneAndUpdate(
-                    { sessionId: id },
-                    { $push: { activeUsers: user } }
-                );
-
                 console.log(
                     `Connected to WebSocket ${socket.user.email}`,
                     id,
