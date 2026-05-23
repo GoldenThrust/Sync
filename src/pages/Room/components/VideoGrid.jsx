@@ -4,27 +4,22 @@ import PropTypes from "prop-types"
 export default function VideoGrid({ videos, localVideo, className = '', style }) {
 
     return <div className={`${className}`} style={style} >
-        <div className={`overflow-hidden rounded-lg flex items-center justify-center shadow-slate-900 shadow-lg object-cover ${Object.entries(videos).length ? 'absolute bottom-25 right-5 w-1/3 sm:w-1/5 rounded-2xl z-10 sm:right-10 border-5 border-slate-500' : 'w-screen h-screen'} bg-slate-900`} id='localhost'>
+        <div className={`overflow-hidden rounded-2xl flex items-center justify-center shadow-slate-900 shadow-lg object-cover ${Object.entries(videos).length ? 'absolute bottom-25 right-5 w-1/3 sm:w-1/5 z-10 sm:right-10 border-5 border-slate-500' : 'w-screen h-screen'} bg-slate-900`} id='localhost'>
             {localVideo}
         </div>
 
-        <div className={`h-screen w-screen items-center justify-center gap-5 flex-col lg:flex-row ${Object.entries(videos).length ? 'flex' : 'hidden'} flex items-center justify-center`} >
-            {Object.values(videos).map((video, index) => {
-                if (index < 6) {
-                    return (<div key={index} className={`overflow-hidden aspect-video rounded-lg h-full shadow-slate-900 shadow-lg`}  >
-                        {video}
-                    </div>)
-                }
-            }
-            )}
+        <div className={`h-screen w-screen items-center justify-center gap-1 md:gap-5 flex-col lg:flex-row ${Object.entries(videos).length ? 'flex' : 'hidden'} flex items-center justify-center`} >
+            {Object.values(videos).slice(0, 6).map((video, index) => {
+                return (<div key={index} className={`overflow-hidden aspect-video rounded-lg h-full flex place-items-center justify-center shadow-slate-900 shadow-lg calc(${100 / Math.min(videos.length, 6)}%)`}  >
+                    {video}
+                </div>)
+            })}
         </div>
         <div id="parallelVideo" className={`flex ${videos.length <= 6 ? 'hidden' : 'h-1/6'} items-center gap-3 overflow-hidden overflow-x-auto`} >
-            {Object.values(videos).map((video, index) => {
-                if (index > 6) {
-                    return (<div key={index} className="h-full aspect-video rounded-lg bg-black"  >
-                        {video}
-                    </div>)
-                }
+            {Object.values(videos).slice(6).map((video, index) => {
+                return (<div key={index} className="h-full aspect-video rounded-lg bg-black"  >
+                    {video}
+                </div>)
             }
             )}
         </div>

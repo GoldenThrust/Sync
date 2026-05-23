@@ -27,7 +27,7 @@ export default function Video({ user, stream, muted = false, facingMode ='user',
         }
     }, [stream]);
 
-    return <video ref={videoRef} autoPlay playsInline muted={muted} id={user.id} className={`overflow-hidden ${className} ${!isMobile || facingMode === "user" ? "-scale-x-100" : "scale-x-100"}`} />
+    return <video ref={videoRef} autoPlay playsInline muted={muted} id={user.id} className={`overflow-hidden rounded-lg ${className} ${!isMobile || facingMode === "user" ? "-scale-x-100" : "scale-x-100"}`} />
 }
 
 Video.propTypes = {
