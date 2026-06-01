@@ -25,10 +25,6 @@ export default function SignUp() {
     const [searchParams] = useSearchParams();
     const emailQuery = searchParams.get('email');
 
-
-
-
-
     const form = [
         { name: 'fullname', type: "text", placeholder: "Full Name", required: true },
         { name: 'email', type: "email", value: emailQuery, placeholder: "Email Address", required: true },
@@ -73,17 +69,17 @@ export default function SignUp() {
             <form onSubmit={handleSubmit(signUp)} className="flex flex-col justify-center gap-5 h-screen w-3/4 md:w-1/2 items-center">
                 <label
                     htmlFor="image"
-                    className={`block w-24 aspect-square rounded-full overflow-hidden tr  ${errors['image']?.type ? 'shadow-2xl shadow-red-600 bg-pink-900' : 'bg-slate-600'} relative`}
+                    className={`block w-24 aspect-square rounded-full overflow-hidden tr  ${errors['image']?.type ? 'shadow-2xl shadow-red-600 bg-pink-900' : 'bg-slate-600'} relative object-cover`}
                 >
                     <input
                         type="file"
                         {...register("image", { required: true })}
-                        className="w-full h-full opacity-0 absolute"
+                        className="w-full h-full opacity-0 absolute border-2 border-red-800"
                         accept="image/*"
                         onChange={handleImageChange}
                     />
                     {preview ? (
-                        <img src={preview} alt="Profile Preview" className="w-full h-full object-cover" />
+                        <img src={preview} alt="Profile Preview" className="absolute" />
                     ) : (
                         <span className="text-white flex items-center justify-center w-full h-full">
                             Upload pics

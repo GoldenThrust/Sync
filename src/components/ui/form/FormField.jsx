@@ -17,7 +17,7 @@ export default function FormField({ data, hook, className }) {
             } else {
                 return <div key={key} className={className}>
                     <InputField data={val} register={register} />
-                    {errors[data.name] && <p role="alert" className="text-red-500">This field is required</p>}
+                    {errors[val.name] && <p role="alert" className="text-red-500">This field is required</p>}
                 </div>
             }
         }

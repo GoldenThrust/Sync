@@ -141,3 +141,18 @@ export const accountActivation = (token, otp, redirectUrl) => async (dispatch) =
   }
 }
 
+
+export const verifyUsername = (token, form) => async (dispatch) => {
+  try {
+    toast.loading("Updating your password...", { id: "newPassword" })
+    dispatch(processingData());
+    const res = await axios.post(`auth/reset-password/${token}`, form);
+    const response = res.data.response;
+    toast.success("Password updated successfully!", { id: "newPassword" })
+    window.location.href = '/auth/login';
+    dispatch(AuthResponse(response));
+  } catch (error) {
+    toast.error("Failed to update password. Please try again.", { id: "newPassword" })
+    dispatch(AuthError(error.response.data.response));
+  }
+}
