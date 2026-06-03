@@ -1,3 +1,4 @@
+import { randomInt } from "crypto";
 import os from "os";
 
 export default function createOTP() {
@@ -21,4 +22,15 @@ export function getIPAddress() {
         }
     }
     return 'IP address not found';
+}
+
+export function generateUsername() {
+    let username = "";
+
+    for (let i = 0; i < 12; i++) {
+        const char =  String.fromCharCode(randomInt(97, 123));
+        username +=  char;
+    }
+
+    return username;
 }

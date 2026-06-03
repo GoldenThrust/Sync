@@ -33,14 +33,14 @@ const HTTP_PORT = process.env.HTTP_PORT || 8080;
 const USE_HTTPS = process.env.USE_HTTPS === 'TRUE';
 
 const allowUrl = [
-  `http://localhost`,
   `https://localhost`,
-  `http://localhost:5173`,
+  `https://localhost`,
+  `https://localhost:5173`,
   'https://localhost:3000',
   'http://localhost:3000',
-  `http://${getIPAddress()}:5173`,
+  `https://${getIPAddress()}:5173`,
   `https://${getIPAddress()}:${HTTPS_PORT}`,
-  `http://${getIPAddress()}:${HTTP_PORT}`,
+  `https://${getIPAddress()}:${HTTP_PORT}`,
 ];
 
 // app.get('/', (req, res) => {

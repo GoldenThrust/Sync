@@ -59,6 +59,10 @@ export default function Lobby() {
             toggleTrack(mediaStream, "audio", settings.settings.enabledAudio);
             toggleTrack(mediaStream, "video", settings.settings.enabledVideo);
         }
+
+        return () => {
+            mediaStream?.getTracks().forEach((track) => track.stop());
+        }
     }, [mediaStream, settings, dispatch, user]);
 
     useEffect(() => {

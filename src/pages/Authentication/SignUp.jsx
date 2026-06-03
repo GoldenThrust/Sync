@@ -74,7 +74,7 @@ export default function SignUp() {
                     <input
                         type="file"
                         {...register("image", { required: true })}
-                        className="w-full h-full opacity-0 absolute border-2 border-red-800"
+                        className="w-full h-full opacity-0 absolute top-0 right-0 border-2 z-20 border-red-800"
                         accept="image/*"
                         onChange={handleImageChange}
                     />

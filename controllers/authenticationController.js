@@ -6,7 +6,7 @@ import mailService from "../config/mail.js";
 import { redisDB } from "../config/db.js";
 import { v7 as uuid } from 'uuid';
 import fs from "fs";
-import createOTP from "../utils/functions.js";
+import createOTP, { generateUsername } from "../utils/functions.js";
 import Settings from "../models/settings.js";
 import Session from "../models/session.js";
 
@@ -189,7 +189,7 @@ class AuthenticationController {
             if (mail) return res.redirect(`/error?message=Invalid or expired token&code=401&redirect=/auth/login&redirectText=Login`);
             return res.status(401).json({ status: "ERROR", response: "Invalid or expired token" });
         }
-        delete credential['otp'];
+        // credential['username'] = generateUsername();
 
         try {
             const user = new User({ ...credential, active: true });
@@ -202,9 +202,6 @@ class AuthenticationController {
             if (!user) {
                 return res.status(500).json({ status: "ERROR", response: "User not found" });
             }
-
-
-
 
             res.clearCookie(COOKIE_NAME, {
                 secure: true,

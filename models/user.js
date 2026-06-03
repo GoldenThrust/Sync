@@ -1,4 +1,5 @@
 import { model, Schema } from 'mongoose';
+import { generateUsername } from '../utils/functions.js';
 
 const UserSchema = new Schema({
     googleId: {
@@ -7,11 +8,11 @@ const UserSchema = new Schema({
     },
     username: {
         type: String,
-        required: true,
+        default: generateUsername()
     },
     fullname: {
         type: String,
-        required: true
+        required: true,
     },
     email: {
         type: String,
