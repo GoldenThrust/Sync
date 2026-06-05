@@ -50,7 +50,6 @@ export default function Lobby() {
 
             setVideoStream(
                 <div className="w-1/2 md:w-1/3 rounded-xl border-4 border-slate-800 overflow-hidden">
-                    {console.log(settings)}
                     <Video stream={mediaStream} user={user} muted className={settings.settings.video.facingMode === 'user' ? `-scale-x-100` : 'scale-x-100'} />
                 </div>
             );

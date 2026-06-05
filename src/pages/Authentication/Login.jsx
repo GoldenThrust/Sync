@@ -22,8 +22,6 @@ export default function Login() {
         { name: 'password', type: "password", placeholder: "Password", required: true },
     ]
 
-
-
     const signIn = (data) => {
         dispatch(login(data, redirectUrl));
     }

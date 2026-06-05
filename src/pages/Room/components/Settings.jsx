@@ -7,7 +7,6 @@ import axios from "axios"
 import toast from "react-hot-toast"
 
 export default function Settings({ setSettingsOpen,sessionId }) {
-
     const SendInvite = useCallback(async (data) => {
         data['sessionId'] = sessionId;
 

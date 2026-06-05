@@ -31,7 +31,6 @@ export function createPeer(socket, stream, userID) {
 
     console.log('sending peer signal')
     peer.on("signal", (signal) => {
-        console.log("send rtc-signal", signal);
         socket.emit('rtc-signal', signal, userID);
     });
 

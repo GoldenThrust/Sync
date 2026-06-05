@@ -74,7 +74,6 @@ class AuthenticationController {
 
             await redisDB.set(`otp_${token}`, JSON.stringify(user), 60 * 60)
 
-
             try {
                 await mailService.sendOTP(user, token)
             } catch (error) {
@@ -181,7 +180,6 @@ class AuthenticationController {
 
         if (!otp) return res.status(400).json({ status: "OTP is required" });
         if (!token) return res.status(400).json({ status: "token is required" });
-
 
         const credential = JSON.parse(await redisDB.get(`otp_${token}`));
 

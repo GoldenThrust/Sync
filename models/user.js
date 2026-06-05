@@ -8,7 +8,8 @@ const UserSchema = new Schema({
     },
     username: {
         type: String,
-        default: generateUsername()
+        default: generateUsername(),
+        unique: true,
     },
     fullname: {
         type: String,
@@ -33,12 +34,26 @@ const UserSchema = new Schema({
     }
 }, { timestamps: true })
 
+async function createUniqueUsername(model, username = null) {
+    username = username ?? generateUsername();
+    const user = await model.findOne({ username });
+
+    if (user) {
+        return createUniqueUsername(model);
+    } else {
+        return username;
+    }
+
+}
+
 
 // require password if googleId is not set and vice versa
-UserSchema.pre('save', function (next) {
+UserSchema.pre('save', async function (next) {
     if (!this.googleId && !this.password) {
         return next(new Error('Either googleId or password must be set'));
     }
+
+    this.username = await createUniqueUsername(this.constructor, this.username);
 
     next();
 });

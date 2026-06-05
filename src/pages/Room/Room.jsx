@@ -51,16 +51,16 @@ export default function Lobby() {
                 );
                 
                 // create 5 mock remote videos for testing
-                const array = [1, 2, 3, 4, 5,6,7,8,9,10,11,12];
-                for (let index = 0; index < array.length; index++) {
-                    const element = array[index];
-                    setRemoteVideos((prev) => {
-                        return {
-                            ...prev,
-                            [`user-${element}`]: <Video stream={localStream} facingMode={settings.video?.facingMode} key={`video-user-${element}`} user={{ email: `user-${element}` }} />
-                        }
-                    });
-                }
+                // const array = [1, 2, 3, 4, 5,6,7,8,9,10,11,12];
+                // for (let index = 0; index < array.length; index++) {
+                //     const element = array[index];
+                //     setRemoteVideos((prev) => {
+                //         return {
+                //             ...prev,
+                //             [`user-${element}`]: <Video stream={localStream} facingMode={settings.video?.facingMode} key={`video-user-${element}`} user={{ email: `user-${element}` }} />
+                //         }
+                //     });
+                // }
                 socketRef.current.emit('get-active-users', id)
             } catch (error) {
                 console.error("Error initializing media stream:", error.message);
@@ -112,7 +112,9 @@ export default function Lobby() {
 
 
             socketRef.current.on('active-users', (users) => {
+                console.log(users)
                 users.forEach(({ user, settings }) => {
+                    console.log("creating peer", user, settings)
                     createNewPeer(user, settings);
                 });
             })
@@ -126,6 +128,7 @@ export default function Lobby() {
             });
 
             socketRef.current.on("rtc-signal", (signal, callerID, user, settings) => {
+                console.log("Recieve RTC Signal");
                 addNewPeer(callerID, signal, user, settings);
             });
 

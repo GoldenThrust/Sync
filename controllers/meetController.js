@@ -4,13 +4,13 @@ import mailService from "../config/mail.js";
 import User from "../models/user.js";
 import { v7 as uuid } from 'uuid';
 
-class MeetController {
+class MeetController { 
     async initiate(req, res) {
         const id = req.params.id;
 
         let session = await Session.findOne({ sessionId: id });
         if (!session) {
-            session = new Session({ sessionId: id, createdBy: req.user, activeUsers: [req.user._id] });
+            session = new Session({ sessionId: id, createdBy: req.user });
         }
         await session.save();
         return res.redirect(`${process.env.CLIENT_URL}/room/` + id)

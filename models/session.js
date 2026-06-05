@@ -46,4 +46,7 @@ const SessionSchema = new Schema(
 );
 
 const Session = model('Session', SessionSchema);
+SessionSchema.pre("updateOne", (next) => {
+  next();
+})
 export default Session;

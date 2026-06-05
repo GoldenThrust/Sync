@@ -3,7 +3,7 @@ import OneFormField from "../../../components/ui/form/OneFormField";
 import Head from "../components/Head";
 import Button from "../../../components/ui/form/Button";
 import { useNavigate } from "react-router-dom";
-import { v7 as uuid } from 'uuid';
+import { v7 as uuid, validate as uuidValidate } from 'uuid';
 import { useCallback, useState } from "react";
 import InputField from "../../../components/ui/form/InputField";
 import { useForm } from "react-hook-form";
@@ -14,7 +14,11 @@ import toast from "react-hot-toast";
 export default function CreateRoom() {
     const [openMeetingScheduler, setOpenMeetingScheduler] = useState(false);
     const navigate = useNavigate();
-    const joinMeeting = () => {
+    const joinMeeting = (data) => {
+        const id = data.url.split('/').slice(-1)[0];
+
+        uuidValidate(id) ? navigate(`/meet/waiting-room/${id}`) : toast.error('Invalid meeting link or passcode');
+
 
     }
 
@@ -70,14 +74,14 @@ function MeetingScheduler({ setOpenMeetingScheduler }) {
         toast.loading('Scheduling meeting...');
         const response = await axios.post('/meet/schedule', data);
 
-        if (response.data.meeting && response.data.meeting.id) { 
+        if (response.data.meeting && response.data.meeting.id) {
             toast.success('Meeting scheduled successfully');
             navigate(`/meet/waiting-room/${response.data.meeting.id}`);
         } else {
             toast.error('Error scheduling meeting');
             console.error('Error scheduling meeting:', error);
         }
-    
+
         setOpenMeetingScheduler(false);
     }, [])
 

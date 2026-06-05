@@ -1,3 +1,4 @@
+import { mongo } from "mongoose";
 import socketCookieParser from "../middlewares/socketCookieParser.js";
 import socketAuthenticateToken from "../middlewares/socketTokenManager.js";
 import Session from "../models/session.js";
@@ -33,13 +34,17 @@ class WebSocketManager {
                     return;
                 }
 
+                this.userSessions.delete(socket.user.email);
                 this.userSessions.set(socket.user.email, { id: socket.user.id, room: id, user });
                 socket.join(id);
 
                 await Session.findOneAndUpdate(
                     { sessionId: id },
-                    { $pull: { activeUsers: { email: socket.user.email } } },
+                    { $pull: { activeUsers: socket.user.id } },
                 );
+
+                session.activeUsers.push(socket.user.id);
+                await session.save()
 
                 console.log(
                     `Connected to WebSocket ${socket.user.email}`,
@@ -48,6 +53,7 @@ class WebSocketManager {
                 );
 
                 socket.on("rtc-signal", (signal, userID) => {
+                    console.log(`Recieve RTC: ${userID}`);
                     socket.to(userID).emit("rtc-signal", signal, socket.id, user, settings);
                 });
 
@@ -56,7 +62,6 @@ class WebSocketManager {
                 });
 
                 socket.on("end-call", () => {
-                    console.log(socket.id, `${socket.user.email} ended call`);
                     socket.disconnect();
                 });
 
@@ -73,22 +78,25 @@ class WebSocketManager {
                     if (session) {
                         await Session.findOneAndUpdate(
                             { sessionId: id },
-                            { $pull: { activeUsers: { id: socket.id } } }
+                            { $pull: { activeUsers:  socket.user.id } }
                         );
                     }
                 });
 
                 socket.on("get-active-users", async () => {
                     try {
-                        const session = await Session.findOne({ sessionId: id });
+                        const session = await Session.findOne({ sessionId: id }).populate("activeUsers");
 
                         if (session) {
                             const response = [];
                             for (const userObj of session.activeUsers) {
                                 if (userObj.email !== socket.user.email) {
-                                    const { id } = this.userSessions.get(userObj.email) || {};
+                                    const { id, user } = this.userSessions.get(userObj.email) || {};
+
+                                    if (!id) continue;
+                        
                                     const userSettings = await Settings.findOne({ user: id });
-                                    response.push({ settings: userSettings, user: userObj });
+                                    response.push({ settings: userSettings, user });
                                 }
                             }
 

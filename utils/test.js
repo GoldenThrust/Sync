@@ -7,4 +7,3 @@ const mail = await TemplateEngine.render('instant-meeting-invite', {
 });
 
 console.log("Meeting invite email template rendered successfully.");
-console.log(mail);
