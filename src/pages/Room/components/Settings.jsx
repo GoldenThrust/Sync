@@ -7,7 +7,7 @@ import axios from "axios"
 import toast from "react-hot-toast"
 
 export default function Settings({ setSettingsOpen, sessionId }) {
-    const [invited, setInvited] = useState(["Dsds"]);
+    const [invited, setInvited] = useState([]);
 
     const SendInvite = useCallback(async () => {
         const data = {

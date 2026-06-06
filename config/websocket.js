@@ -84,6 +84,7 @@ class WebSocketManager {
                 });
 
                 socket.on("get-active-users", async () => {
+                    console.log("getting active user");
                     try {
                         const session = await Session.findOne({ sessionId: id }).populate("activeUsers");
 

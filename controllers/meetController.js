@@ -28,6 +28,11 @@ class MeetController {
             if (!session) {
                 session = new Session({ sessionId, createdBy: req.user, activeUsers: [req.user._id] });
             }
+
+            session.activeUsers = session.activeUsers || [];
+            session.invitedUsers = session.invitedUsers || [];
+            session.invitedGuestUsers = session.invitedGuestUsers || [];
+
             await session.save();
 
             for (const email of emails) {
@@ -126,18 +131,50 @@ class MeetController {
         try {
             const id = req.params.id;
 
-            const session = await Session.findOne({
-                sessionId: id
-            });
+            // Base: session is open (public and no invite list set)
+            const accessConditions = [
+                {
+                    visibility: "public",
+                    invitedUsers: { $size: 0 },
+                    invitedGuestUsers: { $size: 0 },
+                },
+            ];
 
+            if (req.user?._id) {
+                accessConditions.push({ createdBy: req.user._id });       // is creator
+                accessConditions.push({ activeUsers: req.user._id });     // already active
+                accessConditions.push({ invitedUsers: req.user._id });    // was invited
+            }
+
+            if (req.user?.email) {
+                accessConditions.push({ invitedGuestUsers: req.user.email }); // guest invite
+            }
+
+            const session = await Session.findOne({
+                sessionId: id,
+                $or: accessConditions,
+            })
+                .populate("activeUsers", "fullname email")
+                .populate("invitedUsers", "fullname email");
 
             if (!session) {
                 return res.status(404).json({ status: "OK", response: "Session not found" });
             }
 
-            const response = session.activeUsers.filter(
-                (userObj) => userObj.user.email !== req.user.email
-            );
+            const activeUsers = session.activeUsers || [];
+            const invitedUsers = session.invitedUsers || [];
+
+            // Merge and deduplicate by _id
+            const seen = new Set();
+            const response = [];
+
+            for (const user of [...activeUsers, ...invitedUsers]) {
+                const uid = user._id.toString();
+                if (!seen.has(uid)) {
+                    seen.add(uid);
+                    response.push({ user, settings: { video: { facingMode: "user" } } });
+                }
+            }
 
             res.json({ status: "OK", response });
         } catch (error) {
