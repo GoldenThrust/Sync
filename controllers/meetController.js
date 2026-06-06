@@ -3,6 +3,7 @@ import Session from "../models/session.js";
 import mailService from "../config/mail.js";
 import User from "../models/user.js";
 import { v7 as uuid } from 'uuid';
+import Settings from "../models/settings.js";
 
 class MeetController {
     async initiate(req, res) {
@@ -154,8 +155,8 @@ class MeetController {
                 sessionId: id,
                 $or: accessConditions,
             })
-                .populate("activeUsers", "fullname email")
-                .populate("invitedUsers", "fullname email");
+                .populate("activeUsers", "fullname email socketId settings")
+                .populate("invitedUsers", "fullname email socketId settings");
 
             if (!session) {
                 return res.status(404).json({ status: "OK", response: "Session not found" });
@@ -169,10 +170,15 @@ class MeetController {
             const response = [];
 
             for (const user of [...activeUsers, ...invitedUsers]) {
+                const settings =  await Settings.findOne({
+                    user: user._id
+                })
+
                 const uid = user._id.toString();
+
                 if (!seen.has(uid)) {
                     seen.add(uid);
-                    response.push({ user, settings: { video: { facingMode: "user" } } });
+                    response.push({ user, settings });
                 }
             }
 

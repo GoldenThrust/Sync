@@ -106,7 +106,7 @@ export default function Lobby() {
     const createNewPeer = useCallback((user, peerSettings) => {
         console.log("creating Pear", mediaStream)
         if (!mediaStream) return;
-        const newRemotePeer = createPeer(socketRef.current, mediaStream, user._id);
+        const newRemotePeer = createPeer(socketRef.current, mediaStream, user.socketId);
         remotePeer.current[user.email] = newRemotePeer;
         newRemotePeer.on("stream", (stream) => {
             setRemoteVideos((prev) => ({
@@ -124,6 +124,7 @@ export default function Lobby() {
     }, [mediaStream]);
 
     const addNewPeer = useCallback((callerID, signal, user, peerSettings) => {
+        console.log("adding peer signal", mediaStream);
         if (!mediaStream) return;
         const newRemotePeer = addPeer(socketRef.current, mediaStream, callerID);
         newRemotePeer.signal(signal);
@@ -180,7 +181,7 @@ export default function Lobby() {
             socketRef.current?.emit("end-call");
             socketRef.current?.disconnect();
         };
-    }, [id]);
+    }, [id, addNewPeer]);
 
     useEffect(() => {
         if (settings && mediaStream) {
@@ -232,11 +233,11 @@ export default function Lobby() {
     }, [mediaStream, settings, isSharingScreen, toggleScreenShare, dispatch, navigate]);
 
     useEffect(() => {
-        if (users || mediaStream) {
-            console.log(users)
+        if (users && mediaStream) {
             users?.forEach(({ user, settings: s }) => {
                 console.log("users in room", user, s);
-                createNewPeer(user, s)});
+                createNewPeer(user, s)
+            });
         }
     }, [users, mediaStream, createNewPeer])
 
@@ -246,6 +247,10 @@ export default function Lobby() {
             getMediaStream()
         }
     }, [settings, getMediaStream]);
+
+    useEffect(() => {
+        console.log(mediaStream, "mediaStream changed");
+    }, [mediaStream])
 
 
     return (

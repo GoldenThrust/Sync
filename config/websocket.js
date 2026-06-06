@@ -3,6 +3,7 @@ import socketCookieParser from "../middlewares/socketCookieParser.js";
 import socketAuthenticateToken from "../middlewares/socketTokenManager.js";
 import Session from "../models/session.js";
 import Settings from "../models/settings.js";
+import User from "../models/user.js";
 
 class WebSocketManager {
     constructor() {
@@ -22,6 +23,10 @@ class WebSocketManager {
                 ...socket.user,
                 id: socket.id,
             };
+
+            await User.findByIdAndUpdate(socket.user.id, {
+                socketId: socket.id
+            })
 
             try {
                 const session = await Session.findOne({ sessionId: id });

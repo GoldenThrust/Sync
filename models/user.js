@@ -6,6 +6,9 @@ const UserSchema = new Schema({
         type: String,
         unique: true
     },
+    socketId: {
+        type: String
+    },
     username: {
         type: String,
         default: generateUsername(),

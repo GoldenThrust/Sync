@@ -4,7 +4,6 @@ const initialState = {
   users: null,
   loading: false,
   error: null,
-  response: null,
 };
 
 
@@ -18,11 +17,11 @@ const sessionSlice = createSlice({
     sessionError: (state, action) => {
       state.loading = false;
       state.error = action.payload;
-      state.response = null;
+      state.users = [];
     },
     sessionResponse: (state, action) => {
       state.loading = false;
-      state.response = action.payload.response;
+      state.users = action.payload.response;
       state.token = action.payload.token;
       state.error = null;
     }
