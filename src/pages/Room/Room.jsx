@@ -39,7 +39,6 @@ export default function Lobby() {
         // Initialize media stream
         const initializeMediaStream = async () => {
             try {
-                console.log(settings)
                 localStream = await navigator.mediaDevices.getUserMedia({
                     video: settings.settings.video,
                     audio: settings.settings.audio,
@@ -49,18 +48,16 @@ export default function Lobby() {
                 setVideoStream(
                     <Video stream={localStream} user={{ ...settings.user, id: socketRef.current.id }} muted className={`${settings.settings.video.facingMode === 'user' ? '-scale-x-100' : 'scale-x-100'} w-full h-full`} />
                 );
-                
-                // create 5 mock remote videos for testing
-                // const array = [1, 2, 3, 4, 5,6,7,8,9,10,11,12];
-                // for (let index = 0; index < array.length; index++) {
-                //     const element = array[index];
-                //     setRemoteVideos((prev) => {
-                //         return {
-                //             ...prev,
-                //             [`user-${element}`]: <Video stream={localStream} facingMode={settings.video?.facingMode} key={`video-user-${element}`} user={{ email: `user-${element}` }} />
-                //         }
-                //     });
-                // }
+
+                // create mock remote videos for testing
+                for (let i = 0; i < 4; i++) {
+                    setRemoteVideos((prev) => {
+                        return {
+                            ...prev,
+                            [`user-${i}`]: <Video stream={localStream} facingMode={settings.video?.facingMode} key={`video-user-${i}`} user={{ email: `user-${i}` }} />
+                        }
+                    });
+                }
                 socketRef.current.emit('get-active-users', id)
             } catch (error) {
                 console.error("Error initializing media stream:", error.message);

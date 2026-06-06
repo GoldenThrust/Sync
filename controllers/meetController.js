@@ -4,7 +4,7 @@ import mailService from "../config/mail.js";
 import User from "../models/user.js";
 import { v7 as uuid } from 'uuid';
 
-class MeetController { 
+class MeetController {
     async initiate(req, res) {
         const id = req.params.id;
 
@@ -30,12 +30,11 @@ class MeetController {
             }
             await session.save();
 
-            const emailList = emails.split(',').map(email => email.trim()).filter(email => email);
-
-            for (const email of emailList) {
-                const user = await User.findOne({ email });
+            for (const email of emails) {
+                console.log(email)
+                const user = await User.findOne({ $or: [{ email }, { username: email }] });
                 if (!user) {
-                    const alreadyActive = session.invitedGuestUsers.find(e => e === email);
+                    const alreadyActive = session.invitedGuestUsers.find(e => e === user.email);
                     if (!alreadyActive) {
                         await mailService.sendGuestInstantMeetingInvite(session, email);
                     }
@@ -44,7 +43,6 @@ class MeetController {
                     const invitedUser = session.invitedUsers.find(u => u._id.toString() === user._id.toString());
                     if (!alreadyActive && !invitedUser) {
                         session.invitedUsers.push(user);
-                        // await session.invitedUsers.save();
 
                         await mailService.sendInstantMeetingInvite(session, user);
                     }
@@ -62,14 +60,14 @@ class MeetController {
     async scheduleMeeting(req, res) {
         try {
             const { title, date, privacy, time, invite } = req.body;
-            
+
             if (!title || !date) {
                 return res.status(400).json({ status: "ERROR", response: "Meeting title and date are required" });
             }
 
             // Generate a unique sessionId
             const sessionId = uuid();
-            
+
             // Calculate meeting duration in milliseconds
             let duration = 3600000; // Default 1 hour
             if (time) {
@@ -107,8 +105,8 @@ class MeetController {
                 await session.save();
             }
 
-            res.json({ 
-                status: "OK", 
+            res.json({
+                status: "OK",
                 response: "Meeting scheduled successfully",
                 meeting: {
                     id: sessionId,
@@ -153,7 +151,7 @@ class MeetController {
             // Find all sessions where the current user is either the creator or an invited participant
             // and where the meeting date is in the future
             const currentDate = new Date();
-            
+
             const sessions = await Session.find({
                 $or: [
                     { createdBy: req.user._id },
@@ -161,9 +159,9 @@ class MeetController {
                 ],
                 activeDate: { $gte: currentDate }
             })
-            .sort({ activeDate: 1 }) // Sort by date, earliest first
-            .populate('createdBy', 'fullname email')
-            .populate('invitedUsers', 'fullname email');
+                .sort({ activeDate: 1 }) // Sort by date, earliest first
+                .populate('createdBy', 'fullname email')
+                .populate('invitedUsers', 'fullname email');
 
             res.json({ status: "OK", meetings: sessions });
         } catch (error) {

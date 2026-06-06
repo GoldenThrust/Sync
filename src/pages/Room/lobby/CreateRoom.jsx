@@ -36,9 +36,9 @@ export default function CreateRoom() {
         <hr className="w-4/5 md:w-1/3 h-2 border-black border-t-2" />
 
         <div className="w-full flex items-center flex-col space-y-2">
-            <Button value="Start instant meeting" className="w-4/5 md:w-1/3 font-bold" onClick={instantMeeting} />
-            <div className="text-center font-mono">OR</div>
-            <Button value="Schedule Meeting" className="w-4/5 md:w-1/3 font-bold" onClick={() => { setOpenMeetingScheduler(true) }} />
+            <Button value="Start meeting" className="w-4/5 md:w-1/3 font-bold" onClick={instantMeeting} />
+            {/* <div className="text-center font-mono">OR</div> */}
+            {/* <Button value="Schedule Meeting" className="w-4/5 md:w-1/3 font-bold" onClick={() => { setOpenMeetingScheduler(true) }} /> */}
             {openMeetingScheduler && <MeetingScheduler setOpenMeetingScheduler={setOpenMeetingScheduler} />}
         </div>
     </div>

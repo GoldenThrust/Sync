@@ -39,7 +39,7 @@ class MailService {
       return info;
     } catch (error) {
       console.error("Error sending email:", error);
-      throw error;
+      // throw error;
     }
   }
 
