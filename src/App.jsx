@@ -1,6 +1,5 @@
 import { createBrowserRouter, RouterProvider, useNavigate, Outlet } from "react-router-dom";
 import Room from "./pages/Room/Room"
-import Room2 from "./pages/Room/test/Room";
 import Home from "./pages/Home";
 import Login from "./pages/Authentication/Login";
 import SignUp from "./pages/Authentication/SignUp";
@@ -104,10 +103,6 @@ const router = createBrowserRouter([
         children: [{
           path: ':id',
           element: <Room />
-        },
-        {
-          path: 'test/:id',
-          element: <Room2 />
         }]
       }
     ]

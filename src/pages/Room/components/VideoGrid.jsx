@@ -39,7 +39,8 @@ function calcTileSize(numTiles, containerW, containerH, gap = 4) {
 
 const MAX_ON_SCREEN = 49   // grid tiles (plus local = 50 total)
 
-export default function VideoGrid({ videos, localVideo, className = '', style }) {
+export default function VideoGrid({ videos, localVideo, sharingScreen = null, className = '', style }) {
+    const [focusedEmail, setFocusedEmail] = useState(sharingScreen);
     const gridRef = useRef(null)
     const [tileSize, setTileSize] = useState({ tileW: 0, tileH: 0 })
 
@@ -66,8 +67,28 @@ export default function VideoGrid({ videos, localVideo, className = '', style })
         return () => ro.disconnect()
     }, [recalc])
 
+    useEffect(()=> {
+        console.log(sharingScreen, "is sharing screen");
+        setFocusedEmail(sharingScreen);
+    }, [sharingScreen])
+
     return (
         <div className={`relative w-screen h-screen overflow-hidden bg-slate-950 ${className}`} style={style}>
+            {/* ── Focused overlay — breaks out of the flex grid ── */}
+            {focusedEmail && (
+                <div
+                    className="absolute inset-0 z-40 bg-slate-950 cursor-pointer w-screen flex items-center justify-center"
+                    onClick={() => setFocusedEmail(null)}
+                >
+                    {videos[focusedEmail]}
+                    <span className="absolute bottom-4 left-4 text-sm text-white/70 z-50">
+                        {focusedEmail}
+                    </span>
+                    <span className="absolute top-4 right-4 text-xs z-50 text-amber-100">
+                        click anywhere to close
+                    </span>
+                </div>
+            )}
 
             {/* ── Local (self) video ── */}
             <div
@@ -90,8 +111,15 @@ export default function VideoGrid({ videos, localVideo, className = '', style })
                     {videoList.slice(0, MAX_ON_SCREEN).map((email, index) => (
                         <div
                             key={email}
-                            className="relative overflow-hidden rounded-md flex-shrink-0 bg-slate-900"
+                            className={`relative overflow-hidden rounded-md flex-shrink-0 bg-slate-900 ${focusedEmail === email ? 'z-20 border-4 border-blue-500 absolute top-0 left-0 w-screen h-screen' : 'border border-blue-500/40'}`}
                             style={{ width: tileSize.tileW, height: tileSize.tileH }}
+                            onClick={() => {
+                                if (focusedEmail === email) {
+                                    setFocusedEmail(null);
+                                } else {
+                                    setFocusedEmail(email);
+                                }
+                            }}
                         >
                             {videos[email]}
                             <span className="absolute bottom-2 right-2 text-xs">{email}</span>
@@ -106,15 +134,23 @@ export default function VideoGrid({ videos, localVideo, className = '', style })
                     {videoList.slice(MAX_ON_SCREEN).map((email) => (
                         <div
                             key={email}
-                            className="h-full aspect-video flex-shrink-0 rounded-md overflow-hidden bg-slate-900 relative"
+                            className={`h-full aspect-video flex-shrink-0 rounded-md overflow-hidden bg-slate-900 relative ${focusedEmail === email ? 'z-20 border-4 border-blue-500 absolute w-screen h-screen' : 'border border-blue-500/40'}`}
+                            onClick={() => {
+                                if (focusedEmail === email) {
+                                    setFocusedEmail(null);
+                                } else {
+                                    setFocusedEmail(email);
+                                }
+                            }}
                         >
                             {videos[email]}
-                            <span className="absolute bottom-1 right-1">{email}</span>
+                            <span span className="absolute bottom-1 right-1" > {email}</span>
                         </div>
-                    ))}
-                </div>
+                    ))
+                    }
+                </div >
             )}
-        </div>
+        </div >
     )
 }
 

@@ -21,10 +21,12 @@ export default function Lobby() {
     const [mediaStream, setMediaStream] = useState(null);
     const [remoteVideos, setRemoteVideos] = useState({});
     const [isSharingScreen, setIsSharingScreen] = useState(false);
+    const [sharingScreen, setSharingScreen] = useState(null);
     const socketRef = useRef(null);
     const remotePeer = useRef({});
     const { settings } = useSelector((state) => state.settings);
     const { users } = useSelector((state) => state.session);
+    const { user } = useSelector((state) => state.auth);
     const [actions, setActions] = useState([]);
     const navigate = useNavigate();
 
@@ -160,6 +162,8 @@ export default function Lobby() {
         socketRef.current.on("return-rtc-signal", (signal, email) => {
             remotePeer.current[email]?.signal(signal);
         });
+
+        socketRef.current.on("screen-share", (email) => setSharingScreen(email));
         socketRef.current.on("user-disconnected", (user) => {
             remotePeer.current[user.email]?.destroy();
             delete remotePeer.current[user.email];
@@ -235,7 +239,6 @@ export default function Lobby() {
     useEffect(() => {
         if (users && mediaStream) {
             users?.forEach(({ user, settings: s }) => {
-                console.log("users in room", user, s);
                 createNewPeer(user, s)
             });
         }
@@ -249,13 +252,14 @@ export default function Lobby() {
     }, [settings, getMediaStream]);
 
     useEffect(() => {
-        console.log(mediaStream, "mediaStream changed");
-    }, [mediaStream])
+        if (user)
+            socketRef.current.emit("screen-share", isSharingScreen ? user?.email : null);
+    }, [isSharingScreen, user])
 
 
     return (
         <div className="h-screen w-screen" id="room">
-            <VideoGrid videos={remoteVideos} localVideo={videoStream} />
+            <VideoGrid videos={remoteVideos} localVideo={videoStream} sharingScreen={sharingScreen} />
             <Footer
                 socket={socketRef.current}
                 actions={actions}

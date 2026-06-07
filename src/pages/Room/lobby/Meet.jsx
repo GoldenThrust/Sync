@@ -3,7 +3,7 @@ import Button from "../../../components/ui/form/Button";
 import Video from "../../../components/ui/Video";
 import { useEffect, useState } from "react";
 import ActionTab from "../components/ActionTab";
-import { AudioLines, MoreHorizontal, SwitchCamera, Video as VidLogo } from "lucide-react";
+import { AudioLines, MoreHorizontal, SwitchCamera, Video as VidLogo, CopyIcon } from "lucide-react";
 import Settings from "../components/Settings";
 import { useDispatch, useSelector } from "react-redux";
 import { getSettings, updateSettings } from "../../../settings/settingsAction";
@@ -12,6 +12,7 @@ import { useParams } from "react-router-dom";
 import Link from "../../../components/ui/Link";
 import { toggleAudio, toggleCamera, toggleFacingMode } from "../../../utils/actions";
 import { isMobile } from "react-device-detect";
+import toast from "react-hot-toast";
 
 export default function Lobby() {
     const { id } = useParams();
@@ -36,6 +37,13 @@ export default function Lobby() {
                 {
                     logo: <AudioLines color={settings.settings.enabledAudio ? "white" : "red"} />,
                     func: () => dispatch(toggleAudio(updateSettings, settings)),
+                },
+                {
+                    logo: <CopyIcon color={settings.settings.enabledAudio ? "white" : "red"} />,
+                    func: async () => {
+                        await navigator.clipboard.writeText(id);
+                        toast.success("Session Id copied.")
+                    },
                 },
             ];
 

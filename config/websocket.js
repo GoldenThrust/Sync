@@ -70,6 +70,10 @@ class WebSocketManager {
                     socket.disconnect();
                 });
 
+                socket.on("screen-share", (sharing)=> {
+                    socket.to(id).emit("screen-share", sharing);
+                })
+
                 socket.on("disconnect", async () => {
                     console.log("Disconnected from WebSocket", socket.user.email);
 
